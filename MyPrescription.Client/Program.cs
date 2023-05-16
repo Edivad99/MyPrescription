@@ -16,8 +16,9 @@ builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("https://localhost:7283/")
-    //BaseAddress = new Uri("https://myprescription.azurewebsites.net/")
+    BaseAddress = builder.HostEnvironment.IsDevelopment()
+    ? new Uri("https://localhost:7283/")
+    : new Uri("https://myprescription.azurewebsites.net/")
 });
 
 builder.Services.AddScoped<MyPrescriptionClient>();
