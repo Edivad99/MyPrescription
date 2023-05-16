@@ -75,6 +75,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped(_ => new TwoFactorAuthenticator());
 builder.Services.AddSingleton(_ => new AuthRepository(connectionString));
+builder.Services.AddSingleton(_ => new PatientRepository(connectionString));
 
 var app = builder.Build();
 

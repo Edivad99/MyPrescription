@@ -1,0 +1,51 @@
+﻿@page "/mypatients"
+@inject MyPrescriptionClient client
+@inject NavigationManager NavManager
+@attribute [Authorize(Roles = "doctor")]
+
+<PageTitle>My patients</PageTitle>
+
+<h3>Patients</h3>
+@if (patients == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var patient in patients)
+            {
+                <tr>
+                    <td>@patient.FirstName</td>
+                    <td>@patient.LastName</td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-success" @onclick="@(() => Info(patient))">Info</button>
+                            <button type="button" class="btn btn-primary" @onclick="@(() => Info(patient))">New Prescription</button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<PatientDTO> patients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        patients = await client.GetPatientsAsync();
+    }
+
+    private void Info(PatientDTO patient) => NavManager.NavigateTo($"/patient/{patient.Id.ToString()}");
+}
+

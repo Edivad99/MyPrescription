@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using MyPrescription.Client.Authentication;
+using MyPrescription.Common.DTO;
 
 namespace MyPrescription.Client;
 
@@ -33,7 +34,7 @@ public class MyPrescriptionClient
         return null;
     }
 
-    //public Task<List<PatientDTO>?> GetPatients() => GetListAsync<PatientDTO>("Patients");
+    public Task<List<PatientDTO>> GetPatientsAsync() => GetListAsync<PatientDTO>("Patients");
 
     public Task<HttpResponseMessage> GetPatientAsync(string id)
     {
