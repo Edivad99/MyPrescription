@@ -1,0 +1,116 @@
+﻿@page "/signin"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<h3>Sign In</h3>
+
+<div class="alert alert-danger" role="alert" hidden="@HideWarning">
+    Unable to add a new user. Try again
+</div>
+
+@if (!showAuthenticationQR)
+{
+    <EditForm Model="model" OnValidSubmit="ExecuteRegistration" class="card card-body bg-light mt-5" autocomplete="off">
+        <DataAnnotationsValidator />
+
+        <div class="row">
+            <div class="col">
+                <ValidationMessage For="@(() => model.FirstName)" />
+                <InputText class="form-control margin-input" placeholder="Firstname" @bind-Value="model.FirstName" />
+            </div>
+            <div class="col">
+                <ValidationMessage For="@(() => model.LastName)" />
+                <InputText class="form-control margin-input" placeholder="Lastname" @bind-Value="model.LastName" />
+            </div>
+        </div>
+        <div class="form-row col-md-10">
+            <ValidationMessage For="@(() => model.Email)" />
+            <InputText id="email" class="form-control margin-input" @bind-Value="model.Email" placeholder="Email" />
+        </div>
+        <div class="form-row col-md-10">
+            <ValidationMessage For="@(() => model.Password)" />
+            <InputText type="password" id="password" class="form-control margin-input" @bind-Value="model.Password" placeholder="Password" />
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <ValidationMessage For="@(() => model.Gender)" />
+                <label for="gender">Gender</label>
+                <InputSelect id="gender" class="form-control" @bind-Value="model.Gender">
+                    <option value="" selected disabled>Chose</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </InputSelect>
+            </div>
+            <div class="col">
+                <ValidationMessage For="@(() => model.Birthdate)" />
+                <label for="birthdate">Birthdate</label>
+                <InputDate class="form-control" id="birthdate" @bind-Value="model.Birthdate" />
+            </div>
+            <div class="col">
+                <ValidationMessage For="@(() => model.Role)" />
+                <label for="role">Role</label>
+                <InputSelect id="role" class="form-control" @bind-Value="model.Role">
+                    <option value="" selected disabled>Chose</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="patient">Patient</option>
+                    <option value="pharmacist">Pharmacist</option>
+                </InputSelect>
+            </div>
+        </div>
+        <div class="row">
+            <div class="btn-group col-md-12 text-right">
+                <button type="submit" class="btn btn-primary">Sign In</button>
+                <NavLink class="btn btn-secondary" href="/login">Log In</NavLink>
+            </div>
+        </div>
+    </EditForm>
+}
+else
+{
+    <div class="card card-body bg-light mt-5">
+        <p>Scan the QR Code or enter this key: <kbd>@twoFAModel.ManualEntrySetupCode</kbd></p>
+        <img src="@twoFAModel.QrCodeImageUrl" width="200" alt="qr code" />
+        <NavLink href="login" class="btn btn-danger">Done</NavLink>
+    </div>
+}
+
+@code {
+    private bool showAuthenticationQR = false;
+    private RegisterUser model = new();
+    private GoogleAuthDTO twoFAModel = new();
+    private bool HideWarning = true;
+
+    private async Task ExecuteRegistration()
+    {
+        // Process the valid form
+        var response = await Http.PostAsJsonAsync("Auth/registration", new RegisterUser()
+        {
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            Email = model.Email,
+            Password = BCrypt.HashPassword(model.Email + model.Password),
+            Gender = model.Gender,
+            Birthdate = model.Birthdate,
+            Role = model.Role
+        });
+
+        if (!response.IsSuccessStatusCode)
+        {
+            HideWarning = false;
+            return;
+        }
+
+        var content = await response.Content.ReadFromJsonAsync<GoogleAuthDTO>();
+        if (content != null)
+        {
+            twoFAModel = new()
+            {
+                QrCodeImageUrl = content.QrCodeImageUrl,
+                ManualEntrySetupCode = content.ManualEntrySetupCode
+            };
+            showAuthenticationQR = true;
+        }
+    }
+}

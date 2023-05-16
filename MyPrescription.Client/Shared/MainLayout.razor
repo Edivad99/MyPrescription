@@ -9,9 +9,20 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            <AuthorizeView>
+                <Authorized>
+                    Welcome @context.User.FindFirst(ClaimTypes.Name)!.Value
+                    <NavLink class="nav-link" href="logout">
+                        <span class="oi oi-account-logout"></span> Log Out
+                    </NavLink>
+                </Authorized>
+                <NotAuthorized>
+                    <NavLink class="nav-link" href="login">
+                        <span class="oi oi-account-login"></span> Log In
+                    </NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
-
         <article class="content px-4">
             @Body
         </article>

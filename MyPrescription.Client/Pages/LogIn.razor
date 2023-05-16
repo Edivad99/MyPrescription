@@ -1,0 +1,71 @@
+﻿@page "/"
+@page "/login"
+@inject IAuthenticationService AuthService
+@inject NavigationManager NavManager
+@inject AuthenticationStateProvider authStateProvider
+
+<h3>Log In</h3>
+
+@if (showAuthenticationError)
+{
+    <div class="alert alert-danger" role="alert">
+        There was an error when trying to login
+    </div>
+}
+
+<EditForm Model="model" OnValidSubmit="ExecuteLogin" class="card card-body bg-light mt-5">
+    <DataAnnotationsValidator />
+    <div class="form-row col-md-10">
+        <ValidationMessage For="@(() => model.Email)" />
+        <InputText id="email" class="form-control margin-input" @bind-Value="model.Email" placeholder="Email" />
+    </div>
+    <div class="form-row col-md-10">
+        <ValidationMessage For="@(() => model.Password)" />
+        <InputText type="password" id="password" class="form-control margin-input" @bind-Value="model.Password" placeholder="Password" />
+    </div>
+    <div class="form-row col-md-10">
+        <ValidationMessage For="@(() => model.TwoFACode)" />
+        <InputText type="text" id="2fa" class="form-control margin-input" @bind-Value="model.TwoFACode" placeholder="2FA Code" />
+    </div>
+    <div class="row">
+        <div class="btn-group col-md-12 text-right">
+            <button type="submit" class="btn btn-primary">Log In</button>
+            <NavLink class="btn btn-secondary" href="/signin">Sign In</NavLink>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private AuthenticationUser model = new();
+    private bool showAuthenticationError = false;
+
+    private async Task ExecuteLogin()
+    {
+        showAuthenticationError = false;
+
+        try
+        {
+            await AuthService.LoginAsync(model);
+            var state = await authStateProvider.GetAuthenticationStateAsync();
+
+            if (state.User.IsInRole("doctor"))
+            {
+                //NavManager.NavigateTo("/patients");
+            }
+            else if (state.User.IsInRole("patient"))
+            {
+                //var id = state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                //NavManager.NavigateTo($"/patient/{id}");
+            }
+            else if (state.User.IsInRole("pharmacist"))
+            {
+
+            }
+        }
+        catch (HttpRequestException)
+        {
+            showAuthenticationError = true;
+        }
+    }
+}
+
