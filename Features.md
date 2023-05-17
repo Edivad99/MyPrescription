@@ -3,7 +3,7 @@
 - Login: Email, password, codice autenticazione
 
 ## Dottore
-- Lista pazienti che segue
+- Lista pazienti che segue (o tutti i pazienti)
 - Per ogni paziente può visualizzare la sua scheda:
     - informazioni paziente
     - storico ricette

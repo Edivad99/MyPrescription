@@ -1,0 +1,104 @@
+﻿@page "/createprescription"
+@page "/createprescription/{id}"
+@inject MyPrescriptionClient client
+@inject NavigationManager NavManager
+@attribute [Authorize(Roles = "doctor")]
+
+<PageTitle>New Prescription</PageTitle>
+
+<h3>New Prescription</h3>
+
+<div class="alert alert-danger" role="alert" hidden="@HideWarning">
+    Unable to create a new prescription. Try again
+</div>
+
+@if (patients == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="model" OnValidSubmit="ExecuteRegistration" class="card card-body bg-light mt-5" autocomplete="off">
+        <DataAnnotationsValidator />
+
+        <div class="row">
+            <div class="col">
+                <ValidationMessage For="@(() => model.DrugName)" />
+                <label for="drugname">Drug name</label>
+                <InputText id="drugname" class="form-control margin-input" placeholder="Drug name" @bind-Value="model.DrugName" />
+            </div>
+            <div class="col">
+                <label for="date">Date</label>
+                <InputDate class="form-control" id="date" @bind-Value="model.CreationDate" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <ValidationMessage For="@(() => model.PatientId)" />
+                <label for="patient">Patient</label>
+                <InputSelect id="patient" class="form-control" @bind-Value="model.PatientId">
+                    @if (string.IsNullOrEmpty(Id))
+                    {
+                        <option value="" selected disabled>Chose</option>
+                    }
+                    else
+                    {
+                        <option value="" disabled>Chose</option>
+                    }
+                    @foreach (var patient in patients)
+                    {
+                        @if (!string.IsNullOrEmpty(Id) && Id == patient.Id.ToString())
+                        {
+                            model.PatientId = Id;
+                            <option value="@patient.Id" selected>@(patient.FirstName + " " + patient.LastName)</option>
+                        }
+                        else
+                        {
+                            <option value="@patient.Id">@(patient.FirstName + " " + patient.LastName)</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+            <div class="col form-check">
+                <label class="form-check-label" for="isfree">Is free?</label>
+                <InputCheckbox class="form-check-input" id="isfree" @bind-Value="model.IsFree" />
+            </div>
+        </div>
+        <div class="row">
+            <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    private NewPrescription model = new() { CreationDate = DateOnly.FromDateTime(DateTime.Today) };
+
+    private List<PatientDTO> patients;
+    private bool HideWarning = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        patients = await client.GetPatientsAsync();
+    }
+
+    private async Task ExecuteRegistration()
+    {
+        HideWarning = true;
+
+        // Process the valid form
+        var response = await client.CreatePrescriptionAsync(model);
+
+        if (response.IsSuccessStatusCode)
+        {
+            //TODO:Redirect to patient's page
+        }
+        else
+        {
+            HideWarning = false;
+        }
+    }
+}
+

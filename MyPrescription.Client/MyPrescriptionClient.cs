@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using MyPrescription.Client.Authentication;
 using MyPrescription.Common.DTO;
+using MyPrescription.Common.Models;
 
 namespace MyPrescription.Client;
 
@@ -31,7 +32,7 @@ public class MyPrescriptionClient
         var responseMessage = await ManageUnauthorizedResponseAsync(() => httpClient.GetAsync(url));
         if (responseMessage.IsSuccessStatusCode)
             return await responseMessage.Content.ReadFromJsonAsync<List<T>>();
-        return null;
+        return new List<T>();
     }
 
     public Task<List<PatientDTO>> GetPatientsAsync() => GetListAsync<PatientDTO>("Patients");
@@ -46,14 +47,10 @@ public class MyPrescriptionClient
         return ManageUnauthorizedResponseAsync(() => httpClient.PostAsync($"Patients", content));
     }
 
-    /*public Task<HttpResponseMessage> PutPatientAsync(PatientDTO patient)
+    public Task<HttpResponseMessage> CreatePrescriptionAsync(NewPrescription prescription)
     {
-        return ManageUnauthorizedResponseAsync(() => httpClient.PutAsJsonAsync($"Patients/{patient.Id}", patient));
-    }*/
-
-    public Task<HttpResponseMessage> DeletePatientAsync(string id)
-    {
-        return ManageUnauthorizedResponseAsync(() => httpClient.DeleteAsync($"Patients/{id}"));
+        return ManageUnauthorizedResponseAsync(() => httpClient.PostAsJsonAsync($"Prescriptions", prescription));
     }
+
 }
 

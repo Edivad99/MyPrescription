@@ -29,7 +29,7 @@ else
                     <td>
                         <div class="btn-group">
                             <button type="button" class="btn btn-success" @onclick="@(() => Info(patient))">Info</button>
-                            <button type="button" class="btn btn-primary" @onclick="@(() => Info(patient))">New Prescription</button>
+                            <button type="button" class="btn btn-primary" @onclick="@(() => NewPrescription(patient))">New Prescription</button>
                         </div>
                     </td>
                 </tr>
@@ -47,5 +47,8 @@ else
     }
 
     private void Info(PatientDTO patient) => NavManager.NavigateTo($"/patient/{patient.Id.ToString()}");
+
+    private void NewPrescription(PatientDTO patient) => NavManager.NavigateTo($"/createprescription/{patient.Id.ToString()}");
+
 }
 
