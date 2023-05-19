@@ -27,4 +27,27 @@ public class PrescriptionRepository : Repository
         await using var conn = GetDbConnection();
         await conn.ExecuteAsync(sql, dynParam);
     }
+
+    public async Task<IEnumerable<PrescriptionExpanded>> GetAllPrescriptionByPatientIdAsync(string patientId)
+    {
+        /*var sql = @"SELECT Prescriptions.*
+                    FROM Prescriptions
+                    INNER JOIN Users ON Users.Id = Prescriptions.IdUser
+                    WHERE IdUser = @ID AND Users.Role = 'patient';";*/
+
+        var sql = @"SELECT Prescriptions.*, 
+                           CONCAT(doctor.FirstName, "" "", doctor.LastName) AS DoctorName,
+                           CONCAT(pharmacist.FirstName, "" "", pharmacist.LastName) AS PharmacistName
+                    FROM Prescriptions
+                    INNER JOIN Users AS patient ON patient.Id = Prescriptions.IdUser
+                    INNER JOIN Users AS doctor ON doctor.Id = Prescriptions.IdDoctor
+                    LEFT JOIN Users AS pharmacist ON pharmacist.Id = Prescriptions.IdPharmacist
+                    WHERE IdUser = @ID AND patient.Role = 'patient';";
+
+        var dynParam = new DynamicParameters();
+        dynParam.Add("@ID", patientId, DbType.String, ParameterDirection.Input);
+
+        await using var conn = GetDbConnection();
+        return await conn.QueryAsync<PrescriptionExpanded>(sql, dynParam);
+    }
 }

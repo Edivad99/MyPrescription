@@ -60,8 +60,8 @@ else
                 </InputSelect>
             </div>
             <div class="col form-check">
-                <label class="form-check-label" for="isfree">Is free?</label>
                 <InputCheckbox class="form-check-input" id="isfree" @bind-Value="model.IsFree" />
+                <label class="form-check-label" for="isfree">Is free?</label>
             </div>
         </div>
         <div class="row">
@@ -76,7 +76,7 @@ else
 
     private NewPrescription model = new() { CreationDate = DateOnly.FromDateTime(DateTime.Today) };
 
-    private List<PatientDTO> patients;
+    private List<PatientDTO>? patients;
     private bool HideWarning = true;
 
     protected override async Task OnInitializedAsync()

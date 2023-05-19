@@ -27,7 +27,7 @@ public class MyPrescriptionClient
         return responseMessage;
     }
 
-    private async Task<List<T>> GetListAsync<T>(string url) where T : class
+    private async Task<List<T>?> GetListAsync<T>(string url) where T : class
     {
         var responseMessage = await ManageUnauthorizedResponseAsync(() => httpClient.GetAsync(url));
         if (responseMessage.IsSuccessStatusCode)
@@ -35,7 +35,9 @@ public class MyPrescriptionClient
         return new List<T>();
     }
 
-    public Task<List<PatientDTO>> GetPatientsAsync() => GetListAsync<PatientDTO>("Patients");
+    public Task<List<PatientDTO>?> GetPatientsAsync() => GetListAsync<PatientDTO>("Patients");
+
+    public Task<List<PrescriptionExpandedDTO>?> GetPrescriptionsByPatientIdAsync(Guid id) => GetListAsync<PrescriptionExpandedDTO>($"Prescriptions/{id}");
 
     public Task<HttpResponseMessage> GetPatientAsync(string id)
     {

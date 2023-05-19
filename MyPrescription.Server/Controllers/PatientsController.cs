@@ -18,7 +18,7 @@ public class PatientsController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    //[Authorize(Roles = "doctor")]
+    [Authorize(Roles = "doctor")]
     public async Task<IActionResult> GetPatientsAsync()
     {
         var patients = await repository.GetPatientsAsync();
@@ -27,7 +27,7 @@ public class PatientsController : ControllerBase
 
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    //[Authorize(Roles = "doctor")]
+    [Authorize(Roles = "doctor")]
     public async Task<IActionResult> GetPatientByIdAsync(Guid id)
     {
         var patient = await repository.GetPatientByIdAsync(id.ToString());

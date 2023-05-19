@@ -3,9 +3,10 @@
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(RunConfiguration)' == 'https' ">
-	  <ExternalConsole>true</ExternalConsole>
+		<ExternalConsole>true</ExternalConsole>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\MyPrescription.Common\MyPrescription.Common.csproj">
@@ -22,8 +23,10 @@
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove="Authentication\" />
+		<None Remove="Pages\Doctor\" />
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="Authentication\" />
+		<Folder Include="Pages\Doctor\" />
 	</ItemGroup>
 </Project>

@@ -39,14 +39,14 @@ else
 }
 
 @code {
-    private List<PatientDTO> patients;
+    private List<PatientDTO>? patients;
 
     protected override async Task OnInitializedAsync()
     {
         patients = await client.GetPatientsAsync();
     }
 
-    private void Info(PatientDTO patient) => NavManager.NavigateTo($"/patient/{patient.Id.ToString()}");
+    private void Info(PatientDTO patient) => NavManager.NavigateTo($"/patientprofile/{patient.Id.ToString()}");
 
     private void NewPrescription(PatientDTO patient) => NavManager.NavigateTo($"/createprescription/{patient.Id.ToString()}");
 
