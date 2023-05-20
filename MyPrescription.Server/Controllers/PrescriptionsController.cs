@@ -21,7 +21,7 @@ public class PrescriptionsController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [Authorize(Roles = "doctor")]
     public async Task<IActionResult> CreatePrescriptionAsync(NewPrescription prescription)
     {
@@ -29,7 +29,7 @@ public class PrescriptionsController : ControllerBase
         {
             Id = Guid.NewGuid().ToString(),
             DrugName = prescription.DrugName,
-            CreationDate = prescription.CreationDate.ToDateTime(TimeOnly.MinValue),
+            CreationDate = prescription.CreationDate,
             IdUser = prescription.PatientId,
             IsFree = prescription.IsFree,
             SingleUseCode = Convert.ToBase64String(RandomNumberGenerator.GetBytes(8)),
@@ -42,19 +42,37 @@ public class PrescriptionsController : ControllerBase
 
     [HttpGet("{patientId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "doctor")]
-    public async Task<IActionResult> GetAllPrescriptionByPatientIdAsync(string patientId)
+    public async Task<IActionResult> GetAllPrescriptionsByPatientIdAsync(string patientId)
     {
-        var prescriptions = await repository.GetAllPrescriptionByPatientIdAsync(patientId);
+        var prescriptions = await repository.GetAllPrescriptionsByPatientIdAsync(patientId);
         if (!prescriptions.Any())
             return StatusCode(StatusCodes.Status404NotFound);
         return StatusCode(StatusCodes.Status200OK, prescriptions.Select(MapTo));
     }
 
+    [HttpDelete("{prescriptionId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "doctor")]
+    public async Task<IActionResult> GetPrescriptionByIdAsync(string prescriptionId)
+    {
+        var prescription = await repository.GetPrescriptionByIdAsync(prescriptionId);
+        if (prescription is null)
+            return StatusCode(StatusCodes.Status404NotFound);
+        if (prescription.IdPharmacist is not null)
+            return StatusCode(StatusCodes.Status403Forbidden);
+        var result = await repository.DeletePrescriptionByIdAsync(prescriptionId);
+        return StatusCode(result ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
+    }
+
     private static PrescriptionExpandedDTO MapTo(PrescriptionExpanded prescription) => new()
     {
+        Id = Guid.Parse(prescription.Id),
         IdUser = Guid.Parse(prescription.IdUser),
-        CreationDate = DateOnly.FromDateTime(prescription.CreationDate),
+        CreationDate = prescription.CreationDate,
         DoctorName = prescription.DoctorName,
         PharmacistName = prescription.PharmacistName,
         DrugName = prescription.DrugName,

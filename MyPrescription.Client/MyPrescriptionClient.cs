@@ -44,15 +44,14 @@ public class MyPrescriptionClient
         return ManageUnauthorizedResponseAsync(() => httpClient.GetAsync($"Patients/{id}"));
     }
 
-    public Task<HttpResponseMessage> PostPatientAsync(MultipartFormDataContent content)
-    {
-        return ManageUnauthorizedResponseAsync(() => httpClient.PostAsync($"Patients", content));
-    }
-
     public Task<HttpResponseMessage> CreatePrescriptionAsync(NewPrescription prescription)
     {
         return ManageUnauthorizedResponseAsync(() => httpClient.PostAsJsonAsync($"Prescriptions", prescription));
     }
 
+    public Task<HttpResponseMessage> DeletePrescriptionByIdAsync(Guid prescriptionId)
+    {
+        return ManageUnauthorizedResponseAsync(() => httpClient.DeleteAsync($"Prescriptions/{prescriptionId}"));
+    }
 }
 

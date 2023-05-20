@@ -3,15 +3,14 @@
 @inject NavigationManager NavManager
 @attribute [Authorize(Roles = "doctor")]
 
+<p hidden="!@HideWarning"><em>Loading...</em></p>
+<div class="alert alert-danger" role="alert" hidden="@HideWarning">
+    @WarningMessage
+</div>
 
 @if (patient == null)
 {
     <PageTitle>Not found</PageTitle>
-
-    <p hidden="!@HideWarning"><em>Loading...</em></p>
-    <div class="alert alert-danger" role="alert" hidden="@HideWarning">
-        Patient not found!
-    </div>
 }
 else
 {
@@ -33,7 +32,7 @@ else
                         <th>Creation Date</th>
                         <th>Is free?</th>
                         <th>Pharmacist name</th>
-                        <th></th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody class="table-group-divider">
@@ -41,17 +40,18 @@ else
                     {
                         <tr>
                             <td>@prescription.DrugName</td>
-                            <td>@prescription.CreationDate.ToShortDateString()</td>
+                            <td>@prescription.CreationDate.ToString()</td>
                             <td>@(prescription.IsFree ? "Yes" : "No")</td>
                             <td>@CheckPharmacistName(prescription)</td>
                             <td>
-                                <div class="btn-group">
-                                    @if (string.IsNullOrEmpty(prescription.PharmacistName))
-                                    {
-                                        <button type="button" class="btn btn-danger" @onclick="@(() => Delete(prescription))">Delete</button>
-                                    }
+                                @if (string.IsNullOrEmpty(prescription.PharmacistName))
+                                {
+                                    <button type="button" class="btn btn-danger" @onclick="@(() => Delete(prescription))">Delete</button>
+                                }
+                                else
+                                {
                                     <button type="button" class="btn btn-warning" @onclick="@(() => Renew(prescription))">Renew</button>
-                                </div>
+                                }
                             </td>
                         </tr>
                     }
@@ -69,6 +69,7 @@ else
     private List<PrescriptionExpandedDTO>? prescriptions;
 
     private bool HideWarning = true;
+    private string WarningMessage = "";
 
     private string GetFullName() => $"{patient!.FirstName} {patient!.LastName}";
 
@@ -83,11 +84,18 @@ else
         {
             patient = null;
             HideWarning = false;
+            WarningMessage = "Patient not found!";
             return;
         }
+        HideWarning = true;
         patient = await response.Content.ReadFromJsonAsync<PatientDTO>();
         if (patient is not null)
-            prescriptions = await client.GetPrescriptionsByPatientIdAsync(patient.Id);
+            await LoadPrescriptions(patient);
+    }
+
+    private async Task LoadPrescriptions(PatientDTO patient)
+    {
+        prescriptions = await client.GetPrescriptionsByPatientIdAsync(patient.Id);
     }
 
     private async Task Renew(PrescriptionExpandedDTO prescription)
@@ -97,7 +105,16 @@ else
 
     private async Task Delete(PrescriptionExpandedDTO prescription)
     {
-        //TODO: Implement
+        var response = await client.DeletePrescriptionByIdAsync(prescription.Id);
+        if (!response.IsSuccessStatusCode)
+        {
+            HideWarning = false;
+            WarningMessage = "Unable to delete the prescription!";
+            return;
+        }
+        HideWarning = true;
+        await LoadPrescriptions(patient!);
+        StateHasChanged();
     }
 }
 

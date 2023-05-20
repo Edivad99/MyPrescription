@@ -29,7 +29,7 @@ else
             </div>
             <div class="col">
                 <label for="date">Date</label>
-                <InputDate class="form-control" id="date" @bind-Value="model.CreationDate" />
+                <InputDate Type="InputDateType.DateTimeLocal" class="form-control" id="date" @bind-Value="model.CreationDate" />
             </div>
         </div>
         <div class="row">
@@ -74,7 +74,7 @@ else
     [Parameter]
     public string? Id { get; set; }
 
-    private NewPrescription model = new() { CreationDate = DateOnly.FromDateTime(DateTime.Today) };
+    private NewPrescription model = new() { CreationDate = DateTime.Now };
 
     private List<PatientDTO>? patients;
     private bool HideWarning = true;
@@ -93,7 +93,7 @@ else
 
         if (response.IsSuccessStatusCode)
         {
-            //TODO:Redirect to patient's page
+            NavManager.NavigateTo($"patientprofile/{model.PatientId}");
         }
         else
         {

@@ -20,7 +20,7 @@ public class PrescriptionRepository : Repository
         dynParam.Add("@IDDOCTOR", prescription.IdDoctor, DbType.String, ParameterDirection.Input);
         dynParam.Add("@IDUSER", prescription.IdUser, DbType.String, ParameterDirection.Input);
         dynParam.Add("@SINGLEUSECODE", prescription.SingleUseCode, DbType.String, ParameterDirection.Input);
-        dynParam.Add("@CREATIONDATE", prescription.CreationDate, DbType.Date, ParameterDirection.Input);
+        dynParam.Add("@CREATIONDATE", prescription.CreationDate, DbType.DateTime, ParameterDirection.Input);
         dynParam.Add("@ISFREE", prescription.IsFree, DbType.Boolean, ParameterDirection.Input);
         dynParam.Add("@DRUGNAME", prescription.DrugName, DbType.String, ParameterDirection.Input);
 
@@ -28,13 +28,8 @@ public class PrescriptionRepository : Repository
         await conn.ExecuteAsync(sql, dynParam);
     }
 
-    public async Task<IEnumerable<PrescriptionExpanded>> GetAllPrescriptionByPatientIdAsync(string patientId)
+    public async Task<IEnumerable<PrescriptionExpanded>> GetAllPrescriptionsByPatientIdAsync(string patientId)
     {
-        /*var sql = @"SELECT Prescriptions.*
-                    FROM Prescriptions
-                    INNER JOIN Users ON Users.Id = Prescriptions.IdUser
-                    WHERE IdUser = @ID AND Users.Role = 'patient';";*/
-
         var sql = @"SELECT Prescriptions.*, 
                            CONCAT(doctor.FirstName, "" "", doctor.LastName) AS DoctorName,
                            CONCAT(pharmacist.FirstName, "" "", pharmacist.LastName) AS PharmacistName
@@ -49,5 +44,29 @@ public class PrescriptionRepository : Repository
 
         await using var conn = GetDbConnection();
         return await conn.QueryAsync<PrescriptionExpanded>(sql, dynParam);
+    }
+
+    public async Task<Prescription> GetPrescriptionByIdAsync(string prescriptionId)
+    {
+        var sql = @"SELECT *
+                    FROM Prescriptions
+                    WHERE Id = @ID;";
+
+        var dynParam = new DynamicParameters();
+        dynParam.Add("@ID", prescriptionId, DbType.String, ParameterDirection.Input);
+
+        await using var conn = GetDbConnection();
+        return await conn.QueryFirstOrDefaultAsync<Prescription>(sql, dynParam);
+    }
+
+    public async Task<bool> DeletePrescriptionByIdAsync(string prescriptionId)
+    {
+        var sql = @"DELETE FROM Prescriptions WHERE Id = @ID;";
+
+        var dynParam = new DynamicParameters();
+        dynParam.Add("@ID", prescriptionId, DbType.String, ParameterDirection.Input);
+
+        await using var conn = GetDbConnection();
+        return await conn.ExecuteAsync(sql, dynParam) == 1;
     }
 }
