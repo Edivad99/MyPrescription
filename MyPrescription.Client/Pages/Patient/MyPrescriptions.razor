@@ -1,0 +1,82 @@
+﻿@page "/myprescriptions"
+@inject MyPrescriptionClient client
+@inject NavigationManager NavManager
+@attribute [Authorize(Roles = "patient")]
+
+<p hidden="!@HideWarning"><em>Loading...</em></p>
+<div class="alert alert-danger" role="alert" hidden="@HideWarning">
+    @WarningMessage
+</div>
+
+@if (patient == null)
+{
+    <PageTitle>Not found</PageTitle>
+}
+else
+{
+    <PageTitle>@GetFullName()</PageTitle>
+    <h1>@GetFullName()</h1>
+    <h3>
+        <small class="text-muted">@patient.Gender, @patient.Birthdate (@GetYearsOld(patient) years old)</small>
+    </h3>
+    <address>
+        <a href="mailto:@patient.Email">Mail: @patient.Email</a><br>
+    </address>
+    @if (prescriptions is not null)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Drug name</th>
+                        <th>Creation Date</th>
+                        <th>Is free?</th>
+                        <th>Prescription code</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    @foreach (var prescription in prescriptions)
+                    {
+                        <tr>
+                            <td>@prescription.DrugName</td>
+                            <td>@prescription.CreationDate.ToString()</td>
+                            <td>@(prescription.IsFree ? "Yes" : "No")</td>
+                            <td>@prescription.SingleUseCode</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@code {
+    private PatientDTO? patient;
+    private List<PrescriptionExpandedDTO>? prescriptions;
+
+    private bool HideWarning = true;
+    private string WarningMessage = "";
+
+    private string GetFullName() => $"{patient!.FirstName} {patient!.LastName}";
+
+    private int GetYearsOld(PatientDTO p) => DateTime.Today.Year - p.Birthdate.Year;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await client.GetCurrentPatientAsync();
+        if (!response.IsSuccessStatusCode)
+        {
+            patient = null;
+            HideWarning = false;
+            WarningMessage = "Patient not found!";
+            return;
+        }
+        HideWarning = true;
+        patient = await response.Content.ReadFromJsonAsync<PatientDTO>();
+        if (patient is not null)
+        {
+            prescriptions = await client.GetPrescriptionsByCurrentPatientAsync();
+        }
+    }
+}
+

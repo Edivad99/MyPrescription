@@ -39,9 +39,16 @@ public class MyPrescriptionClient
 
     public Task<List<PrescriptionExpandedDTO>?> GetPrescriptionsByPatientIdAsync(Guid id) => GetListAsync<PrescriptionExpandedDTO>($"Prescriptions/{id}");
 
+    public Task<List<PrescriptionExpandedDTO>?> GetPrescriptionsByCurrentPatientAsync() => GetListAsync<PrescriptionExpandedDTO>($"Prescriptions/current");
+
     public Task<HttpResponseMessage> GetPatientAsync(string id)
     {
         return ManageUnauthorizedResponseAsync(() => httpClient.GetAsync($"Patients/{id}"));
+    }
+
+    public Task<HttpResponseMessage> GetCurrentPatientAsync()
+    {
+        return ManageUnauthorizedResponseAsync(() => httpClient.GetAsync($"Patients/current"));
     }
 
     public Task<HttpResponseMessage> CreatePrescriptionAsync(NewPrescription prescription)

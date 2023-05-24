@@ -44,12 +44,21 @@ public class PrescriptionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "doctor")]
-    public async Task<IActionResult> GetAllPrescriptionsByPatientIdAsync(string patientId)
+    public async Task<IActionResult> GetAllPrescriptionsByPatientIdAsync(Guid patientId)
     {
-        var prescriptions = await repository.GetAllPrescriptionsByPatientIdAsync(patientId);
+        var prescriptions = await repository.GetAllPrescriptionsByPatientIdAsync(patientId.ToString());
         if (!prescriptions.Any())
             return StatusCode(StatusCodes.Status404NotFound);
         return StatusCode(StatusCodes.Status200OK, prescriptions.Select(MapTo));
+    }
+
+    [HttpGet("current")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "patient")]
+    public async Task<IActionResult> GetAllPrescriptionsByCurrentPatientAsync()
+    {
+        return await GetAllPrescriptionsByPatientIdAsync(User.GetId());
     }
 
     [HttpDelete("{prescriptionId}")]
@@ -57,14 +66,14 @@ public class PrescriptionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "doctor")]
-    public async Task<IActionResult> GetPrescriptionByIdAsync(string prescriptionId)
+    public async Task<IActionResult> DeletePrescriptionByIdAsync(Guid prescriptionId)
     {
-        var prescription = await repository.GetPrescriptionByIdAsync(prescriptionId);
+        var prescription = await repository.GetPrescriptionByIdAsync(prescriptionId.ToString());
         if (prescription is null)
             return StatusCode(StatusCodes.Status404NotFound);
         if (prescription.IdPharmacist is not null)
             return StatusCode(StatusCodes.Status403Forbidden);
-        var result = await repository.DeletePrescriptionByIdAsync(prescriptionId);
+        var result = await repository.DeletePrescriptionByIdAsync(prescriptionId.ToString());
         return StatusCode(result ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
     }
 
