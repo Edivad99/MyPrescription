@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Dapper.Transaction;
 using MyPrescription.Data.Entity;
 using System.Data;
 
@@ -27,7 +28,41 @@ public class AuthRepository : Repository
         dynParam.Add("@ROLE", user.Role, DbType.String, ParameterDirection.Input);
 
         await using var conn = GetDbConnection();
-        await conn.ExecuteAsync(sql, dynParam);
+        conn.Open();
+        await using var transaction = await conn.BeginTransactionAsync();
+        try
+        {
+            await transaction.ExecuteAsync(sql, dynParam);
+
+            if (user.DoctorId is not null)
+            {
+                var sql2 = @"INSERT INTO `DoctorUser` (`IdDoctor`, `IdUser`) VALUES
+                           (@IDDOCTOR, @IDUSER);";
+                var dynParam2 = new DynamicParameters();
+                dynParam2.Add("@IDDOCTOR", user.DoctorId, DbType.String, ParameterDirection.Input);
+                dynParam2.Add("@IDUSER", user.Id, DbType.String, ParameterDirection.Input);
+
+                await transaction.ExecuteAsync(sql2, dynParam2);
+            }
+
+            await transaction.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            try
+            {
+                await transaction.RollbackAsync();
+            }
+            catch (Exception ex2)
+            {
+                throw new Exception(ex2.Message, ex2.InnerException);
+            }
+            throw new Exception(ex.Message, ex.InnerException);
+        }
+        finally
+        {
+            await conn.CloseAsync();
+        }
     }
 
     public async Task<User> GetUserByEmailAsync(string email)

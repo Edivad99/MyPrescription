@@ -1,5 +1,6 @@
 ﻿@page "/signin"
 @inject HttpClient Http
+@inject MyPrescriptionClient client
 @inject NavigationManager NavManager
 
 <h3>Sign In</h3>
@@ -23,13 +24,16 @@
                 <InputText class="form-control margin-input" placeholder="Lastname" @bind-Value="model.LastName" />
             </div>
         </div>
-        <div class="form-row col-md-10">
-            <ValidationMessage For="@(() => model.Email)" />
-            <InputText id="email" class="form-control margin-input" @bind-Value="model.Email" placeholder="Email" />
-        </div>
-        <div class="form-row col-md-10">
-            <ValidationMessage For="@(() => model.Password)" />
-            <InputText type="password" id="password" class="form-control margin-input" @bind-Value="model.Password" placeholder="Password" />
+
+        <div class="row">
+            <div class="col">
+                <ValidationMessage For="@(() => model.Email)" />
+                <InputText id="email" class="form-control margin-input" @bind-Value="model.Email" placeholder="Email" />
+            </div>
+            <div class="col">
+                <ValidationMessage For="@(() => model.Password)" />
+                <InputText type="password" id="password" class="form-control margin-input" @bind-Value="model.Password" placeholder="Password" />
+            </div>
         </div>
 
         <div class="row">
@@ -48,6 +52,9 @@
                 <label for="birthdate">Birthdate</label>
                 <InputDate class="form-control" id="birthdate" @bind-Value="model.Birthdate" />
             </div>
+        </div>
+
+        <div class="row">
             <div class="col">
                 <ValidationMessage For="@(() => model.Role)" />
                 <label for="role">Role</label>
@@ -58,7 +65,22 @@
                     <option value="pharmacist">Pharmacist</option>
                 </InputSelect>
             </div>
+            <div class="col">
+                <ValidationMessage For="@(() => model.DoctorId)" />
+                <label for="doctor">Doctor</label>
+                <InputSelect id="doctor" class="form-control" @bind-Value="model.DoctorId">
+                    <option value="" selected>None</option>
+                    @if (doctors is not null)
+                    {
+                        @foreach (var doctor in doctors)
+                        {
+                            <option value="@doctor.Id">@doctor.Name</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
         </div>
+
         <div class="row">
             <div class="btn-group col-md-12 text-right">
                 <button type="submit" class="btn btn-primary">Sign In</button>
@@ -77,10 +99,18 @@ else
 }
 
 @code {
-    private bool showAuthenticationQR = false;
-    private RegisterUser model = new();
-    private GoogleAuthDTO twoFAModel = new();
     private bool HideWarning = true;
+
+    private bool showAuthenticationQR = false;
+    private GoogleAuthDTO twoFAModel = new();
+
+    private RegisterUser model = new();
+    private List<DoctorDTO>? doctors;
+
+    protected override async Task OnInitializedAsync()
+    {
+        doctors = await client.GetDoctorsAsync();
+    }
 
     private async Task ExecuteRegistration()
     {
@@ -93,7 +123,8 @@ else
             Password = BCrypt.HashPassword(model.Email + model.Password),
             Gender = model.Gender,
             Birthdate = model.Birthdate,
-            Role = model.Role
+            Role = model.Role,
+            DoctorId = model.DoctorId
         });
 
         if (!response.IsSuccessStatusCode)

@@ -49,7 +49,8 @@ public class AuthController : ControllerBase
                 Gender = user.Gender,
                 Birthdate = user.Birthdate.ToDateTime(TimeOnly.MinValue),
                 Key2FA = key,
-                Role = user.Role
+                Role = user.Role,
+                DoctorId = user.Role.ToLower() == "patient" ? user.DoctorId : null
             };
             await repository.AddUserAsync(userDB);
 

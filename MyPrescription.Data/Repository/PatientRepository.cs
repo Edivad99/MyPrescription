@@ -10,14 +10,18 @@ public class PatientRepository : Repository
     {
     }
 
-    public async Task<IEnumerable<User>> GetPatientsAsync()
+    public async Task<IEnumerable<User>> GetPatientsAsync(string doctorId)
     {
-        var sql = @"SELECT *
+        var sql = @"SELECT Users.*
                     FROM Users
-                    WHERE Role = 'patient';";
+                    INNER JOIN DoctorUser ON DoctorUser.IdUser = Users.Id
+                    WHERE Role = 'patient' AND DoctorUser.IdDoctor = @ID;";
+
+        var dynParam = new DynamicParameters();
+        dynParam.Add("@ID", doctorId, DbType.String, ParameterDirection.Input);
 
         await using var conn = GetDbConnection();
-        return await conn.QueryAsync<User>(sql);
+        return await conn.QueryAsync<User>(sql, dynParam);
     }
 
     public async Task<User> GetPatientByIdAsync(string patientId)

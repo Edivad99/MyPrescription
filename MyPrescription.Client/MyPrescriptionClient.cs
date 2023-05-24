@@ -37,6 +37,8 @@ public class MyPrescriptionClient
 
     public Task<List<PatientDTO>?> GetPatientsAsync() => GetListAsync<PatientDTO>("Patients");
 
+    public Task<List<DoctorDTO>?> GetDoctorsAsync() => GetListAsync<DoctorDTO>("Doctors");
+
     public Task<List<PrescriptionExpandedDTO>?> GetPrescriptionsByPatientIdAsync(Guid id) => GetListAsync<PrescriptionExpandedDTO>($"Prescriptions/{id}");
 
     public Task<List<PrescriptionExpandedDTO>?> GetPrescriptionsByCurrentPatientAsync() => GetListAsync<PrescriptionExpandedDTO>($"Prescriptions/current");

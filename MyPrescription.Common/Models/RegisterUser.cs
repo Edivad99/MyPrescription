@@ -22,5 +22,6 @@ public class RegisterUser
     public DateOnly Birthdate { get; set; }
     [Required]
     public string Role { get; set; }
+    [RequiredWhenPatient]
+    public string DoctorId { get; set; }
 }
-

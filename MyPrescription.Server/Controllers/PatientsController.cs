@@ -22,7 +22,7 @@ public class PatientsController : ControllerBase
     [Authorize(Roles = "doctor")]
     public async Task<IActionResult> GetPatientsAsync()
     {
-        var patients = await repository.GetPatientsAsync();
+        var patients = await repository.GetPatientsAsync(User.GetId().ToString());
         return StatusCode(StatusCodes.Status200OK, patients.Select(MapTo));
     }
 
