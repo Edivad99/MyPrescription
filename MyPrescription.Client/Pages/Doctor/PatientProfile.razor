@@ -100,7 +100,16 @@ else
 
     private async Task Renew(PrescriptionExpandedDTO prescription)
     {
-        //TODO: Implement
+        var response = await client.RenewPrescriptionAsync(prescription.Id);
+        if (!response.IsSuccessStatusCode)
+        {
+            HideWarning = false;
+            WarningMessage = "Unable to renew prescription!";
+            return;
+        }
+        HideWarning = true;
+        await LoadPrescriptions(patient!);
+        StateHasChanged();
     }
 
     private async Task Delete(PrescriptionExpandedDTO prescription)

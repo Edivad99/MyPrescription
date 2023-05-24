@@ -60,5 +60,10 @@ public class MyPrescriptionClient
     {
         return ManageUnauthorizedResponseAsync(() => httpClient.DeleteAsync($"Prescriptions/{prescriptionId}"));
     }
+
+    public Task<HttpResponseMessage> RenewPrescriptionAsync(Guid prescriptionId)
+    {
+        return ManageUnauthorizedResponseAsync(() => httpClient.PostAsync($"Prescriptions/{prescriptionId}", null));
+    }
 }
 
