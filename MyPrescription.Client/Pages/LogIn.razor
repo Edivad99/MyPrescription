@@ -54,9 +54,7 @@
             }
             else if (state.User.IsInRole("patient"))
             {
-                var id = state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                NavManager.NavigateTo($"/myprescriptions/{id.ToString()}");
-
+                NavManager.NavigateTo($"/myprescriptions");
             }
             else if (state.User.IsInRole("pharmacist"))
             {

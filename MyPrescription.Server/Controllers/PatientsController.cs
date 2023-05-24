@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyPrescription.Common.DTO;
+using MyPrescription.Common.Extensions;
 using MyPrescription.Data.Repository;
 
 namespace MyPrescription.Server.Controllers;
@@ -34,6 +35,14 @@ public class PatientsController : ControllerBase
         if (patient is null)
             return StatusCode(StatusCodes.Status404NotFound);
         return StatusCode(StatusCodes.Status200OK, MapTo(patient));
+    }
+
+    [HttpGet("current")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Authorize(Roles = "patient")]
+    public async Task<IActionResult> GetCurrentPatientAsync()
+    {
+        return await GetPatientByIdAsync(User.GetId());
     }
 
     private static PatientDTO MapTo(Data.Entity.User user) => new()

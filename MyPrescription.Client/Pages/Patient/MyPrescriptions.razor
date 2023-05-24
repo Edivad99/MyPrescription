@@ -1,4 +1,4 @@
-﻿@page "/myprescriptions/{id}"
+﻿@page "/myprescriptions"
 @inject MyPrescriptionClient client
 @inject NavigationManager NavManager
 @attribute [Authorize(Roles = "patient")]
@@ -51,9 +51,6 @@ else
 }
 
 @code {
-    [Parameter]
-    public string? Id { get; set; }
-
     private PatientDTO? patient;
     private List<PrescriptionExpandedDTO>? prescriptions;
 
@@ -64,12 +61,11 @@ else
 
     private int GetYearsOld(PatientDTO p) => DateTime.Today.Year - p.Birthdate.Year;
 
-    protected override async Task OnInitializedAsync() // Il problema è qua, non legge l'Id
+    protected override async Task OnInitializedAsync()
     {
-        var response = await client.GetPatientAsync(Id!);
+        var response = await client.GetCurrentPatientAsync();
         if (!response.IsSuccessStatusCode)
         {
-            Console.WriteLine(response);
             patient = null;
             HideWarning = false;
             WarningMessage = "Patient not found!";
@@ -78,12 +74,9 @@ else
         HideWarning = true;
         patient = await response.Content.ReadFromJsonAsync<PatientDTO>();
         if (patient is not null)
-            await LoadPrescriptions(patient);
-    }
-
-    private async Task LoadPrescriptions(PatientDTO patient)
-    {
-        prescriptions = await client.GetPrescriptionsByPatientIdAsync(patient.Id);
+        {
+            prescriptions = await client.GetPrescriptionsByCurrentPatientAsync();
+        }
     }
 }
 
