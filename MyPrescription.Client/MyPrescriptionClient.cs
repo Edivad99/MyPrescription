@@ -39,7 +39,7 @@ public class MyPrescriptionClient
 
     public Task<List<DoctorDTO>?> GetDoctorsAsync() => GetListAsync<DoctorDTO>("Doctors");
 
-    public Task<List<PrescriptionExpandedDTO>?> GetPrescriptionsByPatientIdAsync(Guid id) => GetListAsync<PrescriptionExpandedDTO>($"Prescriptions/{id}");
+    public Task<List<PrescriptionExpandedDTO>?> GetPrescriptionsByPatientIdAsync(Guid id) => GetListAsync<PrescriptionExpandedDTO>($"Prescriptions/patient/{id}");
 
     public Task<List<PrescriptionExpandedDTO>?> GetPrescriptionsByCurrentPatientAsync() => GetListAsync<PrescriptionExpandedDTO>($"Prescriptions/current");
 
@@ -66,6 +66,11 @@ public class MyPrescriptionClient
     public Task<HttpResponseMessage> RenewPrescriptionAsync(Guid prescriptionId)
     {
         return ManageUnauthorizedResponseAsync(() => httpClient.PostAsync($"Prescriptions/renew/{prescriptionId}", null));
+    }
+
+    public Task<HttpResponseMessage> GetPrescriptionAsync(Guid prescriptionId)
+    {
+        return ManageUnauthorizedResponseAsync(() => httpClient.GetAsync($"Prescriptions/{prescriptionId}"));
     }
 }
 

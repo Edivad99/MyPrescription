@@ -105,7 +105,7 @@ public class AuthController : ControllerBase
             new Claim(ClaimTypes.Role, user.Role)
         };
 
-        var tokenCode = configuration.GetSection("AppSettings:Token").Value;
+        var tokenCode = configuration.GetSection("AppSettings:Token").Value!;
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenCode));
 
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);

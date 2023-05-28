@@ -8,8 +8,8 @@ using MyPrescription.Data.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string connectionString = builder.Configuration.GetConnectionString("MySQL");
-string jwtToken = builder.Configuration.GetSection("AppSettings:Token").Value;
+string connectionString = builder.Configuration.GetConnectionString("MySQL")!;
+string jwtToken = builder.Configuration.GetSection("AppSettings:Token").Value!;
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

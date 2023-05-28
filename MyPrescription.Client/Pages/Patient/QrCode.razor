@@ -1,0 +1,60 @@
+﻿@page "/qrcode/{prescriptionId}"
+@using QRCoder
+@inject MyPrescriptionClient client
+@inject NavigationManager NavManager
+@attribute [Authorize(Roles = "patient")]
+
+<p hidden="!@HideWarning"><em>Loading...</em></p>
+<div class="alert alert-danger" role="alert" hidden="@HideWarning">
+    @WarningMessage
+</div>
+
+@if (prescription is not null)
+{
+    <div class="card" style="width: 25rem;">
+        <img src="@GenerateQRCode(prescription)" alt="qr code" />
+        <div class="card-body">
+            <p class="card-text">Scan the QR Code or give this key to your pharmacist:</p>
+            <kbd class="card-text">@prescription.SingleUseCode</kbd>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? PrescriptionId { get; set; }
+
+    private PrescriptionExpandedDTO? prescription;
+
+    private bool HideWarning = true;
+    private string WarningMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Guid.TryParse(PrescriptionId, out Guid guid))
+        {
+            HideWarning = false;
+            WarningMessage = "Prescription not found!";
+            return;
+        }
+        var response = await client.GetPrescriptionAsync(guid);
+        if (!response.IsSuccessStatusCode)
+        {
+            HideWarning = false;
+            WarningMessage = "Prescription not found!";
+            return;
+        }
+        prescription = await response.Content.ReadFromJsonAsync<PrescriptionExpandedDTO>();
+    }
+
+    private string GenerateQRCode(PrescriptionExpandedDTO prescription)
+    {
+        var qrGenerator = new QRCodeGenerator();
+        var qrCodeData = qrGenerator.CreateQrCode(prescription.SingleUseCode, QRCodeGenerator.ECCLevel.Q);
+        var qrCode = new PngByteQRCode(qrCodeData);
+        var qrCodeAsPngByteArr = qrCode.GetGraphic(20);
+        var base64 = Convert.ToBase64String(qrCodeAsPngByteArr);
+        return $"data:image/png;base64,{base64}";
+    }
+}
+

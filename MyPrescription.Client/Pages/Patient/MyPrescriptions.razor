@@ -41,7 +41,9 @@ else
                             <td>@prescription.DrugName</td>
                             <td>@prescription.CreationDate.ToString()</td>
                             <td>@(prescription.IsFree ? "Yes" : "No")</td>
-                            <td>@prescription.SingleUseCode</td>
+                            <td>
+                                <NavLink class="btn btn-primary" href="@GetQrLink(prescription)">Show Code</NavLink>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -60,6 +62,8 @@ else
     private string GetFullName() => $"{patient!.FirstName} {patient!.LastName}";
 
     private int GetYearsOld(PatientDTO p) => DateTime.Today.Year - p.Birthdate.Year;
+
+    private string GetQrLink(PrescriptionExpandedDTO prescription) => $"qrcode/{prescription!.Id}";
 
     protected override async Task OnInitializedAsync()
     {

@@ -32,7 +32,7 @@ public class PrescriptionsController : ControllerBase
             CreationDate = prescription.CreationDate,
             IdUser = prescription.PatientId,
             IsFree = prescription.IsFree,
-            SingleUseCode = Convert.ToBase64String(RandomNumberGenerator.GetBytes(8)),
+            SingleUseCode = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
             IdDoctor = User.GetId().ToString()
         };
 
@@ -40,7 +40,7 @@ public class PrescriptionsController : ControllerBase
         return StatusCode(StatusCodes.Status201Created);
     }
 
-    [HttpGet("{patientId}")]
+    [HttpGet("patient/{patientId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "doctor")]
@@ -59,6 +59,21 @@ public class PrescriptionsController : ControllerBase
     public async Task<IActionResult> GetAllPrescriptionsByCurrentPatientAsync()
     {
         return await GetAllPrescriptionsByPatientIdAsync(User.GetId());
+    }
+
+    [HttpGet("{prescriptionId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "patient")]
+    public async Task<IActionResult> GetPrescriptionsByIdPatientAsync(Guid prescriptionId)
+    {
+        var prescriptions = await repository.GetAllPrescriptionsByPatientIdAsync(User.GetId().ToString());
+        if (!prescriptions.Any())
+            return StatusCode(StatusCodes.Status404NotFound);
+        var prescription = prescriptions.Single(x => x.Id == prescriptionId.ToString());
+        if (prescription is null)
+            return StatusCode(StatusCodes.Status404NotFound);
+        return StatusCode(StatusCodes.Status200OK, MapTo(prescription));
     }
 
     [HttpDelete("{prescriptionId}")]
