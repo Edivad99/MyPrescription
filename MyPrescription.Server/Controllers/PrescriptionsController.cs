@@ -77,7 +77,7 @@ public class PrescriptionsController : ControllerBase
         return StatusCode(result ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
     }
 
-    [HttpPost("{prescriptionId}")]
+    [HttpPost("renew/{prescriptionId}")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
