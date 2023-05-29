@@ -1,0 +1,64 @@
+﻿@page "/drugdelivery"
+@inject MyPrescriptionClient client
+@inject NavigationManager NavManager
+@attribute [Authorize(Roles = "pharmacist")]
+
+@if (showDrugDeliveryError)
+{
+    <div class="alert alert-danger" role="alert">
+        The code entered is not valid
+    </div>
+}
+
+@if (drugDelivered)
+{
+    <div>
+        <PageTitle>Drug Delivered</PageTitle>
+    </div>    
+}
+
+<PageTitle>Drug Delivery</PageTitle>
+<h3>
+    Enter the unique code or scan the qr code
+</h3>
+
+<EditForm Model="model" OnValidSubmit="ExecuteDrugDelivery" class="card card-body bg-light mt-5">
+    <DataAnnotationsValidator />
+    <div class="form-row col-md-10">
+        <ValidationMessage For="@(() => model.Code)" />
+        <InputText type="text" id="code" class="form-control margin-input" @bind-Value="model.Code" placeholder="Code" />
+    </div>
+    <div class="row">
+        <div class="btn-group col-md-12 text-right">
+            <button type="submit" class="btn btn-primary">Delivery the drug</button>
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    private DrugDeliveryForm model = new();
+    private bool showDrugDeliveryError = false;
+    private bool drugDelivered = false;
+
+    private bool HideWarning = true;
+    private string WarningMessage = "";
+
+    private async Task ExecuteDrugDelivery()
+    {
+        showDrugDeliveryError = false;
+
+        try
+        {
+            var response = await client.DrugDeliveryAsync(model.Code);
+            if (!response.IsSuccessStatusCode) showDrugDeliveryError = true;
+            else drugDelivered = true;
+        }
+        catch (HttpRequestException)
+        {
+            showDrugDeliveryError = true;    
+        }
+
+    }
+}
+

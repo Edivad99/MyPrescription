@@ -58,7 +58,7 @@
             }
             else if (state.User.IsInRole("pharmacist"))
             {
-
+                NavManager.NavigateTo($"/drugdelivery");
             }
         }
         catch (HttpRequestException)

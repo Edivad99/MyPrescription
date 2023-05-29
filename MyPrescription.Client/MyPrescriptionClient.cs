@@ -72,5 +72,10 @@ public class MyPrescriptionClient
     {
         return ManageUnauthorizedResponseAsync(() => httpClient.GetAsync($"Prescriptions/{prescriptionId}"));
     }
+
+    public Task<HttpResponseMessage> DrugDeliveryAsync(string code)
+    {
+        return ManageUnauthorizedResponseAsync(() => httpClient.PutAsync($"Prescriptions/deliver/{code}", null));
+    }
 }
 

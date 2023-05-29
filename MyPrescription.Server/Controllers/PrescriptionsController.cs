@@ -120,20 +120,20 @@ public class PrescriptionsController : ControllerBase
         return StatusCode(StatusCodes.Status200OK, MapTo(prescription));
     }
 
-    [HttpPut("deliver/{prescriptionId}")]
+    [HttpPut("deliver/{prescriptionCode}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "pharmacist")]
-    public async Task<IActionResult> DeliverPrescriptionByIdAsync(Guid prescriptionId)
+    public async Task<IActionResult> DeliverPrescriptionByIdAsync(string prescriptionCode)
     {
-        var prescription = await repository.GetPrescriptionByIdAsync(prescriptionId.ToString());
+        var prescription = await repository.GetPrescriptionByCode(prescriptionCode);
         if (prescription is null)
             return StatusCode(StatusCodes.Status404NotFound);
         if (prescription.IdPharmacist is not null)
             return StatusCode(StatusCodes.Status403Forbidden);
 
-        var result = await repository.MarkPrescriptionAsDeliveredsync(prescriptionId.ToString(), User.GetId().ToString());
+        var result = await repository.MarkPrescriptionAsDeliveredsync(prescription.Id.ToString(), User.GetId().ToString());
         return StatusCode(result ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
     }
 

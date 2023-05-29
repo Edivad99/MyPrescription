@@ -59,6 +59,19 @@ public class PrescriptionRepository : Repository
         return await conn.QueryFirstOrDefaultAsync<Prescription>(sql, dynParam);
     }
 
+    public async Task<Prescription> GetPrescriptionByCode(string code)
+    {
+        var sql = @"SELECT *
+                    FROM Prescriptions
+                    WHERE SingleUseCode = @CODE;";
+
+        var dynParam = new DynamicParameters();
+        dynParam.Add("@CODE", code, DbType.String, ParameterDirection.Input);
+
+        await using var conn = GetDbConnection();
+        return await conn.QueryFirstOrDefaultAsync<Prescription>(sql, dynParam);
+    }
+
     public async Task<bool> DeletePrescriptionByIdAsync(string prescriptionId)
     {
         var sql = @"DELETE FROM Prescriptions WHERE Id = @ID;";
