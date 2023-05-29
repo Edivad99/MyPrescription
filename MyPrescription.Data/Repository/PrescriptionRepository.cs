@@ -69,4 +69,18 @@ public class PrescriptionRepository : Repository
         await using var conn = GetDbConnection();
         return await conn.ExecuteAsync(sql, dynParam) == 1;
     }
+
+    public async Task<bool> MarkPrescriptionAsDeliveredsync(string prescriptionId, string pharmacistId)
+    {
+        var sql = @"UPDATE Prescriptions
+                    SET IdPharmacist = @IDPHARMACIST
+                    WHERE Id = @ID;";
+
+        var dynParam = new DynamicParameters();
+        dynParam.Add("@ID", prescriptionId, DbType.String, ParameterDirection.Input);
+        dynParam.Add("@IDPHARMACIST", pharmacistId, DbType.String, ParameterDirection.Input);
+
+        await using var conn = GetDbConnection();
+        return await conn.ExecuteAsync(sql, dynParam) == 1;
+    }
 }

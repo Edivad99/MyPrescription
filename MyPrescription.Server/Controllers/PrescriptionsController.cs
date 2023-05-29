@@ -52,30 +52,6 @@ public class PrescriptionsController : ControllerBase
         return StatusCode(StatusCodes.Status200OK, prescriptions.Select(MapTo));
     }
 
-    [HttpGet("current")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = "patient")]
-    public async Task<IActionResult> GetAllPrescriptionsByCurrentPatientAsync()
-    {
-        return await GetAllPrescriptionsByPatientIdAsync(User.GetId());
-    }
-
-    [HttpGet("{prescriptionId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = "patient")]
-    public async Task<IActionResult> GetPrescriptionsByIdPatientAsync(Guid prescriptionId)
-    {
-        var prescriptions = await repository.GetAllPrescriptionsByPatientIdAsync(User.GetId().ToString());
-        if (!prescriptions.Any())
-            return StatusCode(StatusCodes.Status404NotFound);
-        var prescription = prescriptions.Single(x => x.Id == prescriptionId.ToString());
-        if (prescription is null)
-            return StatusCode(StatusCodes.Status404NotFound);
-        return StatusCode(StatusCodes.Status200OK, MapTo(prescription));
-    }
-
     [HttpDelete("{prescriptionId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -92,7 +68,7 @@ public class PrescriptionsController : ControllerBase
         return StatusCode(result ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
     }
 
-    [HttpPost("renew/{prescriptionId}")]
+    [HttpPut("renew/{prescriptionId}")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -118,6 +94,47 @@ public class PrescriptionsController : ControllerBase
 
         await repository.AddNewPrescriptionAsync(newPrescription);
         return StatusCode(StatusCodes.Status201Created);
+    }
+
+    [HttpGet("current")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "patient")]
+    public async Task<IActionResult> GetAllPrescriptionsByCurrentPatientAsync()
+    {
+        return await GetAllPrescriptionsByPatientIdAsync(User.GetId());
+    }
+
+    [HttpGet("{prescriptionId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "patient")]
+    public async Task<IActionResult> GetPrescriptionsByIdPatientAsync(Guid prescriptionId)
+    {
+        var prescriptions = await repository.GetAllPrescriptionsByPatientIdAsync(User.GetId().ToString());
+        if (!prescriptions.Any())
+            return StatusCode(StatusCodes.Status404NotFound);
+        var prescription = prescriptions.Single(x => x.Id == prescriptionId.ToString());
+        if (prescription is null)
+            return StatusCode(StatusCodes.Status404NotFound);
+        return StatusCode(StatusCodes.Status200OK, MapTo(prescription));
+    }
+
+    [HttpPut("deliver/{prescriptionId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "pharmacist")]
+    public async Task<IActionResult> DeliverPrescriptionByIdAsync(Guid prescriptionId)
+    {
+        var prescription = await repository.GetPrescriptionByIdAsync(prescriptionId.ToString());
+        if (prescription is null)
+            return StatusCode(StatusCodes.Status404NotFound);
+        if (prescription.IdPharmacist is not null)
+            return StatusCode(StatusCodes.Status403Forbidden);
+
+        var result = await repository.MarkPrescriptionAsDeliveredsync(prescriptionId.ToString(), User.GetId().ToString());
+        return StatusCode(result ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
     }
 
     private static PrescriptionExpandedDTO MapTo(PrescriptionExpanded prescription) => new()

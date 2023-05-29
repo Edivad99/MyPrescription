@@ -65,7 +65,7 @@ public class MyPrescriptionClient
 
     public Task<HttpResponseMessage> RenewPrescriptionAsync(Guid prescriptionId)
     {
-        return ManageUnauthorizedResponseAsync(() => httpClient.PostAsync($"Prescriptions/renew/{prescriptionId}", null));
+        return ManageUnauthorizedResponseAsync(() => httpClient.PutAsync($"Prescriptions/renew/{prescriptionId}", null));
     }
 
     public Task<HttpResponseMessage> GetPrescriptionAsync(Guid prescriptionId)
