@@ -1,8 +1,8 @@
 ﻿@page "/drugdelivery"
+@using ReactorBlazorQRCodeScanner
 @inject MyPrescriptionClient client
 @inject NavigationManager NavManager
 @inject IJSRuntime JS
-@using ReactorBlazorQRCodeScanner
 @attribute [Authorize(Roles = "pharmacist")]
 
 @if (showDrugDeliveryError)
@@ -12,23 +12,26 @@
     </div>
 }
 
-@if (drugDelivered)
-{
-    <div>
-        <PageTitle>Drug Delivered</PageTitle>
-    </div>    
-}
-
 <PageTitle>Drug Delivery</PageTitle>
-<h3>
-    Enter the unique code or scan the qr code
-</h3>
+<h3>Enter the unique code or scan the QR code</h3>
 
 <EditForm Model="model" OnValidSubmit="ExecuteDrugDelivery" class="card card-body bg-light mt-5">
     <DataAnnotationsValidator />
     <div class="form-row col-md-10">
         <ValidationMessage For="@(() => model.Code)" />
+        <label for="code">Enter the code manually or scan the QR code</label>
         <InputText type="text" id="code" class="form-control margin-input" @bind-Value="model.Code" placeholder="Code" />
+        @if (showOpenCodeReader)
+        {
+            <button type="button" class="btn btn-outline-primary" @onclick="OpenQrCodeReader">Scan the QR code</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-outline-danger" @onclick="CloseQrCodeReader">Close the QR code reader</button>
+        }
+    </div>
+    <div class="row" style="width:50%">
+        <QRCodeScanner LoadingMessage="" />
     </div>
     <div class="row">
         <div class="btn-group col-md-12 text-right">
@@ -37,64 +40,51 @@
     </div>
 </EditForm>
 
-<div style="margin-top: 2em">
-    <div style="text-align: center">
-        <button type="button" style="width: 50%" class="btn btn-primary" @onclick="@(() => OpenQrCodeReader())">Scan the Qr Code</button>
-    </div>
-    <div style="text-align: center">
-        <button type="button" style="width: 50%; margin-top: 1em" class="btn btn-primary" @onclick="@(() => StopQRScan())">Close the Qr Code Reader</button>
-    </div>
-    <QRCodeScanner ShowOutput="false" LoadingMessage=""/>
-</div>
-
 @code {
     private DrugDeliveryForm model = new();
     private bool showDrugDeliveryError = false;
     private bool drugDelivered = false;
-    private string codeFromQrReader = "";
 
-    private bool HideWarning = true;
-    private string WarningMessage = "";
+    private bool showOpenCodeReader = true;
+
 
     private async Task ExecuteDrugDelivery()
     {
-        showDrugDeliveryError = false;
-
+        showDrugDeliveryError = drugDelivered = false;
         try
         {
-            var response = await client.DrugDeliveryAsync(string.IsNullOrEmpty(codeFromQrReader) ? model.Code : codeFromQrReader);
-            codeFromQrReader = "";
-            if (!response.IsSuccessStatusCode) showDrugDeliveryError = true;
-            else drugDelivered = true;
+            var response = await client.DrugDeliveryAsync(model.Code);
+            if (!response.IsSuccessStatusCode)
+                showDrugDeliveryError = true;
+            else
+                drugDelivered = true;
         }
         catch (HttpRequestException)
         {
-            showDrugDeliveryError = true;    
+            showDrugDeliveryError = true;
         }
-
     }
 
-    private QRCodeScannerJsInterop? _qrCodeScannerJsInterop;
-    private Action<string>? _onQrCodeScanAction;
+    private QRCodeScannerJsInterop? qrCodeScannerJsInterop;
 
-    protected async Task OpenQrCodeReader()
+    private async Task OpenQrCodeReader()
     {
-        _onQrCodeScanAction = (code) => OnQrCodeScan(code);
-
-        _qrCodeScannerJsInterop = new QRCodeScannerJsInterop(JS);
-        await _qrCodeScannerJsInterop.Init(_onQrCodeScanAction);
+        qrCodeScannerJsInterop = new QRCodeScannerJsInterop(JS);
+        await qrCodeScannerJsInterop.Init(async code =>
+        {
+            model.Code = code;
+            await CloseQrCodeReader();
+            StateHasChanged();
+        });
+        showOpenCodeReader = false;
     }
 
-    private async void OnQrCodeScan(string code)
+    private async Task CloseQrCodeReader()
     {
-        codeFromQrReader = code;
-        await ExecuteDrugDelivery();
-        StopQRScan();
-    }
-
-    protected async Task StopQRScan()
-    {
-        await _qrCodeScannerJsInterop.StopRecording();
+        if (qrCodeScannerJsInterop is not null)
+        {
+            await qrCodeScannerJsInterop.StopRecording();
+        }
+        showOpenCodeReader = true;
     }
 }
-
