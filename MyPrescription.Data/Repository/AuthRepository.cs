@@ -75,6 +75,6 @@ public class AuthRepository : Repository
         dynParam.Add("@EMAIL", email, DbType.String, ParameterDirection.Input);
 
         await using var conn = GetDbConnection();
-        return await conn.QueryFirstOrDefaultAsync<User>(sql, dynParam);
+        return await conn.QuerySingleOrDefaultAsync<User>(sql, dynParam);
     }
 }

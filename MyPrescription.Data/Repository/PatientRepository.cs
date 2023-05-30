@@ -34,7 +34,7 @@ public class PatientRepository : Repository
         dynParam.Add("@ID", patientId, DbType.String, ParameterDirection.Input);
 
         await using var conn = GetDbConnection();
-        return await conn.QueryFirstOrDefaultAsync<User>(sql, dynParam);
+        return await conn.QuerySingleOrDefaultAsync<User>(sql, dynParam);
     }
 
     public async Task<IEnumerable<User>> GetPatientPrescriptionsAsync(string patientId)
