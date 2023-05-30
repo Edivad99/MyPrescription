@@ -3,13 +3,14 @@
 @inject MyPrescriptionClient client
 @inject NavigationManager NavManager
 
+<PageTitle>Sign In</PageTitle>
 <h3>Sign In</h3>
 
 <div class="alert alert-danger" role="alert" hidden="@HideWarning">
     Unable to add a new user. Try again
 </div>
 
-@if (!showAuthenticationQR)
+@if (twoFAModel is null)
 {
     <EditForm Model="model" OnValidSubmit="ExecuteRegistration" class="card card-body bg-light mt-5" autocomplete="off">
         <DataAnnotationsValidator />
@@ -101,11 +102,9 @@ else
 @code {
     private bool HideWarning = true;
 
-    private bool showAuthenticationQR = false;
-    private GoogleAuthDTO twoFAModel = new();
-
     private RegisterUser model = new();
     private List<DoctorDTO>? doctors;
+    private GoogleAuthDTO? twoFAModel;
 
     protected override async Task OnInitializedAsync()
     {
@@ -132,16 +131,7 @@ else
             HideWarning = false;
             return;
         }
-
-        var content = await response.Content.ReadFromJsonAsync<GoogleAuthDTO>();
-        if (content != null)
-        {
-            twoFAModel = new()
-            {
-                QrCodeImageUrl = content.QrCodeImageUrl,
-                ManualEntrySetupCode = content.ManualEntrySetupCode
-            };
-            showAuthenticationQR = true;
-        }
+        twoFAModel = await response.Content.ReadFromJsonAsync<GoogleAuthDTO>();
+        model = new();
     }
 }

@@ -4,6 +4,7 @@
 @inject NavigationManager NavManager
 @inject AuthenticationStateProvider authStateProvider
 
+<PageTitle>Log In</PageTitle>
 <h3>Log In</h3>
 
 @if (showAuthenticationError)
@@ -39,6 +40,17 @@
     private AuthenticationUser model = new();
     private bool showAuthenticationError = false;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await authStateProvider.GetAuthenticationStateAsync();
+        var identity = state.User.Identity;
+
+        if (identity is not null && identity.IsAuthenticated)
+        {
+            RoleBaseNavigateTo(state);
+        }
+    }
+
     private async Task ExecuteLogin()
     {
         showAuthenticationError = false;
@@ -47,23 +59,27 @@
         {
             await AuthService.LoginAsync(model);
             var state = await authStateProvider.GetAuthenticationStateAsync();
-
-            if (state.User.IsInRole("doctor"))
-            {
-                NavManager.NavigateTo("/mypatients");
-            }
-            else if (state.User.IsInRole("patient"))
-            {
-                NavManager.NavigateTo($"/myprescriptions");
-            }
-            else if (state.User.IsInRole("pharmacist"))
-            {
-                NavManager.NavigateTo($"/drugdelivery");
-            }
+            RoleBaseNavigateTo(state);
         }
         catch (HttpRequestException)
         {
             showAuthenticationError = true;
+        }
+    }
+
+    private void RoleBaseNavigateTo(AuthenticationState state)
+    {
+        if (state.User.IsInRole("doctor"))
+        {
+            NavManager.NavigateTo("/mypatients");
+        }
+        else if (state.User.IsInRole("patient"))
+        {
+            NavManager.NavigateTo("/myprescriptions");
+        }
+        else if (state.User.IsInRole("pharmacist"))
+        {
+            NavManager.NavigateTo($"/drugdelivery");
         }
     }
 }
