@@ -1,6 +1,8 @@
 ﻿@page "/drugdelivery"
 @inject MyPrescriptionClient client
 @inject NavigationManager NavManager
+@inject IJSRuntime JS
+@using ReactorBlazorQRCodeScanner
 @attribute [Authorize(Roles = "pharmacist")]
 
 @if (showDrugDeliveryError)
@@ -35,11 +37,21 @@
     </div>
 </EditForm>
 
+<div style="margin-top: 2em">
+    <div style="text-align: center">
+        <button type="button" style="width: 50%" class="btn btn-primary" @onclick="@(() => OpenQrCodeReader())">Scan the Qr Code</button>
+    </div>
+    <div style="text-align: center">
+        <button type="button" style="width: 50%; margin-top: 1em" class="btn btn-primary" @onclick="@(() => StopQRScan())">Close the Qr Code Reader</button>
+    </div>
+    <QRCodeScanner ShowOutput="false" LoadingMessage=""/>
+</div>
 
 @code {
     private DrugDeliveryForm model = new();
     private bool showDrugDeliveryError = false;
     private bool drugDelivered = false;
+    private string codeFromQrReader = "";
 
     private bool HideWarning = true;
     private string WarningMessage = "";
@@ -50,7 +62,8 @@
 
         try
         {
-            var response = await client.DrugDeliveryAsync(model.Code);
+            var response = await client.DrugDeliveryAsync(string.IsNullOrEmpty(codeFromQrReader) ? model.Code : codeFromQrReader);
+            codeFromQrReader = "";
             if (!response.IsSuccessStatusCode) showDrugDeliveryError = true;
             else drugDelivered = true;
         }
@@ -59,6 +72,29 @@
             showDrugDeliveryError = true;    
         }
 
+    }
+
+    private QRCodeScannerJsInterop? _qrCodeScannerJsInterop;
+    private Action<string>? _onQrCodeScanAction;
+
+    protected async Task OpenQrCodeReader()
+    {
+        _onQrCodeScanAction = (code) => OnQrCodeScan(code);
+
+        _qrCodeScannerJsInterop = new QRCodeScannerJsInterop(JS);
+        await _qrCodeScannerJsInterop.Init(_onQrCodeScanAction);
+    }
+
+    private async void OnQrCodeScan(string code)
+    {
+        codeFromQrReader = code;
+        await ExecuteDrugDelivery();
+        StopQRScan();
+    }
+
+    protected async Task StopQRScan()
+    {
+        await _qrCodeScannerJsInterop.StopRecording();
     }
 }
 
