@@ -143,7 +143,7 @@ public class PrescriptionsController : ControllerBase
     [Authorize(Roles = "pharmacist")]
     public async Task<IActionResult> GetPrescriptionsByCode(string code)
     {
-        var prescription = await repository.GetPrescriptionByCode(User.GetId().ToString());
+        var prescription = await repository.GetPrescriptionByCode(code);
         if (prescription is null)
             return StatusCode(StatusCodes.Status404NotFound);
         return StatusCode(StatusCodes.Status200OK, prescription);

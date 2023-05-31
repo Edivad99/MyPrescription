@@ -12,9 +12,9 @@
     </div>
 }
 
+<PageTitle>Drug Delivery</PageTitle>
 @if (drugDelivered && prescription is not null)
 {
-    <PageTitle>Drug Delivery</PageTitle>
     <h3>The unique code or the QR code is valid</h3>
 
     <div class="table-responsive">
@@ -37,8 +37,8 @@
         </table>
     </div>
 }
-
-<PageTitle>Drug Delivery</PageTitle>
+else
+{
 <h3>Enter the unique code or scan the QR code</h3>
 
 <EditForm Model="model" OnValidSubmit="ExecuteDrugDelivery" class="card card-body bg-light mt-5">
@@ -65,6 +65,7 @@
         </div>
     </div>
 </EditForm>
+}
 
 @code {
     private DrugDeliveryForm model = new();
