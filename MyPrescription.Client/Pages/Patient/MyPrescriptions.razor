@@ -32,6 +32,7 @@ else
                         <th>Creation Date</th>
                         <th>Is free?</th>
                         <th>Prescription code</th>
+                        <th>Claimed</th>
                     </tr>
                 </thead>
                 <tbody class="table-group-divider">
@@ -44,6 +45,7 @@ else
                             <td>
                                 <NavLink class="btn btn-primary" href="@GetQrLink(prescription)">Show Code</NavLink>
                             </td>
+                            <td>@(prescription.PharmacistName is not null ? "Yes" : "No")</td>
                         </tr>
                     }
                 </tbody>
