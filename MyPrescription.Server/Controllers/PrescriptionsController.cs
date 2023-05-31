@@ -137,6 +137,18 @@ public class PrescriptionsController : ControllerBase
         return StatusCode(result ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
     }
 
+    [HttpGet("{code}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "pharmacist")]
+    public async Task<IActionResult> GetPrescriptionsByCode(string code)
+    {
+        var prescription = await repository.GetPrescriptionByCode(User.GetId().ToString());
+        if (prescription is null)
+            return StatusCode(StatusCodes.Status404NotFound);
+        return StatusCode(StatusCodes.Status200OK, prescription);
+    }
+
     private static PrescriptionExpandedDTO MapTo(PrescriptionExpanded prescription) => new()
     {
         Id = Guid.Parse(prescription.Id),

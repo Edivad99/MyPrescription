@@ -12,6 +12,32 @@
     </div>
 }
 
+@if (drugDelivered && prescription is not null)
+{
+    <PageTitle>Drug Delivery</PageTitle>
+    <h3>The unique code or the QR code is valid</h3>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Drug name</th>
+                    <th>Creation Date</th>
+                    <th>Is free?</th>
+                    <th>Prescription code</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                    <tr>
+                        <td>@prescription.DrugName</td>
+                        <td>@prescription.CreationDate.ToString()</td>
+                        <td>@(prescription.IsFree ? "Yes" : "No")</td>
+                    </tr>
+            </tbody>
+        </table>
+    </div>
+}
+
 <PageTitle>Drug Delivery</PageTitle>
 <h3>Enter the unique code or scan the QR code</h3>
 
@@ -42,6 +68,7 @@
 
 @code {
     private DrugDeliveryForm model = new();
+    private PrescriptionExpandedDTO? prescription;
     private bool showDrugDeliveryError = false;
     private bool drugDelivered = false;
 
@@ -57,7 +84,10 @@
             if (!response.IsSuccessStatusCode)
                 showDrugDeliveryError = true;
             else
+            {
                 drugDelivered = true;
+                prescription = await client.GetPrescriptionByCodeAsync(model.Code);
+            }
         }
         catch (HttpRequestException)
         {
