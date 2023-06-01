@@ -5,40 +5,12 @@
 @inject IJSRuntime JS
 @attribute [Authorize(Roles = "pharmacist")]
 
-@if (showDrugDeliveryError)
-{
-    <div class="alert alert-danger" role="alert">
-        The code entered is not valid
-    </div>
-}
+<div class="alert alert-danger" role="alert" hidden="@HideWarning">
+    The code entered is not valid
+</div>
 
 <PageTitle>Drug Delivery</PageTitle>
-@if (drugDelivered && prescription is not null)
-{
-    <h3>The unique code or the QR code is valid</h3>
 
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Drug name</th>
-                    <th>Creation Date</th>
-                    <th>Is free?</th>
-                    <th>Prescription code</th>
-                </tr>
-            </thead>
-            <tbody class="table-group-divider">
-                    <tr>
-                        <td>@prescription.DrugName</td>
-                        <td>@prescription.CreationDate.ToString()</td>
-                        <td>@(prescription.IsFree ? "Yes" : "No")</td>
-                    </tr>
-            </tbody>
-        </table>
-    </div>
-}
-else
-{
 <h3>Enter the unique code or scan the QR code</h3>
 
 <EditForm Model="model" OnValidSubmit="ExecuteDrugDelivery" class="card card-body bg-light mt-5">
@@ -65,34 +37,34 @@ else
         </div>
     </div>
 </EditForm>
-}
+
 
 @code {
     private DrugDeliveryForm model = new();
-    private PrescriptionExpandedDTO? prescription;
-    private bool showDrugDeliveryError = false;
-    private bool drugDelivered = false;
+    private bool HideWarning = true;
 
     private bool showOpenCodeReader = true;
 
 
     private async Task ExecuteDrugDelivery()
     {
-        showDrugDeliveryError = drugDelivered = false;
-        try
+        HideWarning = true;
+
+        var response = await client.DrugDeliveryAsync(model.Code);
+        if (!response.IsSuccessStatusCode)
         {
-            var response = await client.DrugDeliveryAsync(model.Code);
-            if (!response.IsSuccessStatusCode)
-                showDrugDeliveryError = true;
-            else
-            {
-                drugDelivered = true;
-                prescription = await client.GetPrescriptionByCodeAsync(model.Code);
-            }
+            HideWarning = false;
+            return;
         }
-        catch (HttpRequestException)
+
+        var prescription = await response.Content.ReadFromJsonAsync<PrescriptionDTO>();
+        if (prescription is not null)
         {
-            showDrugDeliveryError = true;
+            NavManager.NavigateTo($"/druginformation/{prescription.SingleUseCode}");
+        }
+        else
+        {
+            HideWarning = false;
         }
     }
 

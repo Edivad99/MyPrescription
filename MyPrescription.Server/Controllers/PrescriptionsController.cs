@@ -133,7 +133,9 @@ public class PrescriptionsController : ControllerBase
             return StatusCode(StatusCodes.Status403Forbidden);
 
         var result = await repository.MarkPrescriptionAsDeliveredsync(prescription.Id.ToString(), User.GetId().ToString());
-        return StatusCode(result ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
+        if (result)
+            return StatusCode(StatusCodes.Status200OK, MapTo(prescription));
+        return StatusCode(StatusCodes.Status404NotFound);
     }
 
     [HttpGet("singleusecode/{code}")]
