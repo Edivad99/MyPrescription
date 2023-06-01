@@ -6,4 +6,5 @@ public interface IAuthenticationService
 {
     Task LoginAsync(AuthenticationUser user);
     Task LogoutAsync();
+    Task<bool> IsAccessTokenStillValid();
 }

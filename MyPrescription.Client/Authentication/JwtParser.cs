@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace MyPrescription.Client.Authentication;
 
@@ -51,5 +52,19 @@ public class JwtParser
             case 3: base64 += "="; break;
         }
         return Convert.FromBase64String(base64);
+    }
+
+    public static bool IsValid(string token)
+    {
+        JwtSecurityToken jwtSecurityToken;
+        try
+        {
+            jwtSecurityToken = new JwtSecurityToken(token);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+        return jwtSecurityToken.ValidTo > DateTime.UtcNow;
     }
 }

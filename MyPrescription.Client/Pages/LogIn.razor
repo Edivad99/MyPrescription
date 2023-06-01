@@ -47,7 +47,15 @@
 
         if (identity is not null && identity.IsAuthenticated)
         {
-            RoleBaseNavigateTo(state);
+            var isValid = await AuthService.IsAccessTokenStillValid();
+            if (isValid)
+            {
+                RoleBaseNavigateTo(state);
+            }
+            else
+            {
+                await AuthService.LogoutAsync();
+            }
         }
     }
 
