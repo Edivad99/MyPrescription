@@ -40,25 +40,6 @@
     private AuthenticationUser model = new();
     private bool showAuthenticationError = false;
 
-    protected override async Task OnInitializedAsync()
-    {
-        var state = await authStateProvider.GetAuthenticationStateAsync();
-        var identity = state.User.Identity;
-
-        if (identity is not null && identity.IsAuthenticated)
-        {
-            var isValid = await AuthService.IsAccessTokenStillValid();
-            if (isValid)
-            {
-                RoleBaseNavigateTo(state);
-            }
-            else
-            {
-                await AuthService.LogoutAsync();
-            }
-        }
-    }
-
     private async Task ExecuteLogin()
     {
         showAuthenticationError = false;
