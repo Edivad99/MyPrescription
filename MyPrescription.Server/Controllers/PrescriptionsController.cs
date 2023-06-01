@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyPrescription.Common.DTO;
 using MyPrescription.Common.Extensions;
@@ -32,7 +31,7 @@ public class PrescriptionsController : ControllerBase
             CreationDate = prescription.CreationDate,
             IdUser = prescription.PatientId,
             IsFree = prescription.IsFree,
-            SingleUseCode = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
+            SingleUseCode = Guid.NewGuid().ToString(),
             IdDoctor = User.GetId().ToString()
         };
 
@@ -89,7 +88,7 @@ public class PrescriptionsController : ControllerBase
             IdUser = prescription.IdUser,
             IsFree = prescription.IsFree,
             IdDoctor = User.GetId().ToString(),
-            SingleUseCode = Convert.ToBase64String(RandomNumberGenerator.GetBytes(8))
+            SingleUseCode = Guid.NewGuid().ToString()
         };
 
         await repository.AddNewPrescriptionAsync(newPrescription);
@@ -137,7 +136,7 @@ public class PrescriptionsController : ControllerBase
         return StatusCode(result ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
     }
 
-    [HttpGet("{code}")]
+    [HttpGet("singleusecode/{code}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "pharmacist")]
@@ -146,8 +145,18 @@ public class PrescriptionsController : ControllerBase
         var prescription = await repository.GetPrescriptionByCode(code);
         if (prescription is null)
             return StatusCode(StatusCodes.Status404NotFound);
-        return StatusCode(StatusCodes.Status200OK, prescription);
+        return StatusCode(StatusCodes.Status200OK, MapTo(prescription));
     }
+
+    private static PrescriptionDTO MapTo(Prescription prescription) => new()
+    {
+        Id = Guid.Parse(prescription.Id),
+        IdUser = Guid.Parse(prescription.IdUser),
+        CreationDate = prescription.CreationDate,
+        DrugName = prescription.DrugName,
+        IsFree = prescription.IsFree,
+        SingleUseCode = prescription.SingleUseCode
+    };
 
     private static PrescriptionExpandedDTO MapTo(PrescriptionExpanded prescription) => new()
     {

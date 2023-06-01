@@ -51,7 +51,7 @@ public class MyPrescriptionClient
 
     public Task<List<PrescriptionExpandedDTO>?> GetPrescriptionsByCurrentPatientAsync() => GetListAsync<PrescriptionExpandedDTO>($"Prescriptions/current");
 
-    public Task<PrescriptionExpandedDTO?> GetPrescriptionByCodeAsync(string code) => GetAsync<PrescriptionExpandedDTO>($"Prescriptions/{code}");
+    public Task<PrescriptionExpandedDTO?> GetPrescriptionByCodeAsync(string code) => GetAsync<PrescriptionExpandedDTO>($"Prescriptions/singleusecode/{code}");
 
     public Task<HttpResponseMessage> GetPatientAsync(string id)
     {
