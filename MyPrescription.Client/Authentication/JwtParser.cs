@@ -61,8 +61,9 @@ public class JwtParser
         {
             jwtSecurityToken = new JwtSecurityToken(token);
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Console.WriteLine(e);
             return false;
         }
         return jwtSecurityToken.ValidTo > DateTime.UtcNow;

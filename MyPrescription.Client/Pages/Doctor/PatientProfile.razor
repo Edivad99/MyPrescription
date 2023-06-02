@@ -1,6 +1,5 @@
 ﻿@page "/patientprofile/{id}"
 @inject MyPrescriptionClient client
-@inject NavigationManager NavManager
 @attribute [Authorize(Roles = "doctor")]
 
 <p hidden="!@HideWarning"><em>Loading...</em></p>

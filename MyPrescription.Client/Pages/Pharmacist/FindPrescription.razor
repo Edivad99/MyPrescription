@@ -1,4 +1,4 @@
-﻿@page "/drugdelivery"
+﻿@page "/findprescription"
 @using ReactorBlazorQRCodeScanner
 @inject MyPrescriptionClient client
 @inject NavigationManager NavManager
@@ -13,7 +13,7 @@
 
 <h3>Enter the unique code or scan the QR code</h3>
 
-<EditForm Model="model" OnValidSubmit="ExecuteDrugDelivery" class="card card-body bg-light mt-5">
+<EditForm Model="model" OnValidSubmit="FindDrug" class="card card-body bg-light mt-5">
     <DataAnnotationsValidator />
     <div class="form-row col-md-10">
         <ValidationMessage For="@(() => model.Code)" />
@@ -33,7 +33,7 @@
     </div>
     <div class="row">
         <div class="btn-group col-md-12 text-right">
-            <button type="submit" class="btn btn-primary">Delivery the drug</button>
+            <button type="submit" class="btn btn-primary">Search the prescription</button>
         </div>
     </div>
 </EditForm>
@@ -42,25 +42,17 @@
 @code {
     private DrugDeliveryForm model = new();
     private bool HideWarning = true;
-
     private bool showOpenCodeReader = true;
 
-
-    private async Task ExecuteDrugDelivery()
+    private async Task FindDrug()
     {
         HideWarning = true;
 
-        var response = await client.DrugDeliveryAsync(model.Code);
-        if (!response.IsSuccessStatusCode)
-        {
-            HideWarning = false;
-            return;
-        }
+        var response = await client.GetPrescriptionBySingleUseCodeAsync(model.Code);
 
-        var prescription = await response.Content.ReadFromJsonAsync<PrescriptionDTO>();
-        if (prescription is not null)
+        if (response.IsSuccessStatusCode)
         {
-            NavManager.NavigateTo($"/druginformation/{prescription.SingleUseCode}");
+            NavManager.NavigateTo($"/druginformation/{model.Code}");
         }
         else
         {

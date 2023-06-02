@@ -1,9 +1,10 @@
 ﻿@page "/druginformation/{singleUseCode}"
 @inject MyPrescriptionClient client
+@inject NavigationManager NavManager
 @attribute [Authorize(Roles = "pharmacist")]
 
 <div class="alert alert-danger" role="alert" hidden="@HideWarning">
-    Prescription not found!
+    @WarningMessage
 </div>
 
 <PageTitle>Drug Information</PageTitle>
@@ -30,8 +31,8 @@
             </tbody>
         </table>
     </div>
+    <button type="button" class="btn btn-primary" @onclick="ConfirmDelivery">Confirm Delivery</button>
 }
-<NavLink class="btn btn-primary" href="/drugdelivery">Go Back</NavLink>
 
 
 @code {
@@ -40,6 +41,7 @@
 
     private PrescriptionDTO? prescription;
     private bool HideWarning = true;
+    private string? WarningMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -49,8 +51,22 @@
         if (!response.IsSuccessStatusCode)
         {
             HideWarning = false;
+            WarningMessage = "Prescription not found!";
             return;
         }
         prescription = await response.Content.ReadFromJsonAsync<PrescriptionDTO>();
+    }
+
+    private async Task ConfirmDelivery()
+    {
+        HideWarning = true;
+        var response = await client.DrugDeliveryAsync(prescription!.SingleUseCode);
+        if (!response.IsSuccessStatusCode)
+        {
+            HideWarning = false;
+            WarningMessage = "Delivery failed!";
+            return;
+        }
+        NavManager.NavigateTo($"/findprescription");
     }
 }

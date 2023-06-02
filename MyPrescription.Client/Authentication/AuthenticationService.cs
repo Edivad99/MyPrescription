@@ -53,6 +53,7 @@ public class AuthenticationService : IAuthenticationService
     public async Task<bool> IsAccessTokenStillValid()
     {
         var accessToken = await localStorage.GetItemAsStringAsync("authToken");
+        accessToken = accessToken.Substring(1, accessToken.Length - 2);
         return JwtParser.IsValid(accessToken);
     }
 }
