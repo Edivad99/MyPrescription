@@ -37,7 +37,8 @@ public class PrescriptionRepository : Repository
                     INNER JOIN Users AS patient ON patient.Id = Prescriptions.IdUser
                     INNER JOIN Users AS doctor ON doctor.Id = Prescriptions.IdDoctor
                     LEFT JOIN Users AS pharmacist ON pharmacist.Id = Prescriptions.IdPharmacist
-                    WHERE IdUser = @ID AND patient.Role = 'patient';";
+                    WHERE IdUser = @ID AND patient.Role = 'patient'
+                    ORDER BY CreationDate DESC;";
 
         var dynParam = new DynamicParameters();
         dynParam.Add("@ID", patientId, DbType.String, ParameterDirection.Input);
