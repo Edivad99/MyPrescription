@@ -22,11 +22,11 @@ public class NotificationService
 
     public string GetPublicKey() => settings.PublicKey;
 
-    public async Task SubscribeUserAsync(Guid IDUser, NotificationSubscription notification)
+    public async Task SubscribePatientAsync(Guid patientId, NotificationSubscription notification)
     {
         var notificationDb = new Notification()
         {
-            IDUser = IDUser.ToString(),
+            IDUser = patientId.ToString(),
             Auth = notification.Auth,
             P256dh = notification.P256dh,
             Url = notification.Url

@@ -28,7 +28,7 @@ public class NotificationController : ControllerBase
     [Authorize(Roles = "patient")]
     public async Task<IActionResult> Subscribe(NotificationSubscription subscription)
     {
-        await service.SubscribeUserAsync(User.GetId(), subscription);
+        await service.SubscribePatientAsync(User.GetId(), subscription);
         return StatusCode(StatusCodes.Status200OK);
     }
 }

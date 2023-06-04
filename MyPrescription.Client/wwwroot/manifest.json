@@ -7,9 +7,10 @@
     "theme_color": "#3a0647",
     "icons": [
         {
-            "src": "icon-192.png",
+            "src": "icon-256.png",
             "type": "image/png",
-            "sizes": "192x192"
+            "sizes": "256x256"
         }
-    ]
+    ],
+    "categories": [ "medical" ]
 }
