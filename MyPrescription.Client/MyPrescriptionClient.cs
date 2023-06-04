@@ -17,6 +17,8 @@ public class MyPrescriptionClient
         this.authService = authService;
     }
 
+    public string GetNotificationPublicKeyUrl() => httpClient.BaseAddress!.AbsoluteUri + "Notification/publickey";
+
     private async Task<HttpResponseMessage> ManageUnauthorizedResponseAsync(Func<Task<HttpResponseMessage>> func)
     {
         var responseMessage = await func.Invoke();
@@ -82,5 +84,9 @@ public class MyPrescriptionClient
     {
         return ManageUnauthorizedResponseAsync(() => httpClient.PutAsync($"Prescriptions/deliver/{code}", null));
     }
-}
 
+    public Task<HttpResponseMessage> NotificationSubscribe(NotificationSubscription subscription)
+    {
+        return ManageUnauthorizedResponseAsync(() => httpClient.PostAsJsonAsync($"Notification/subscribe", subscription));
+    }
+}

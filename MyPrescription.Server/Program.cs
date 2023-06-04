@@ -5,11 +5,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using MyPrescription.Data.Repository;
+using MyPrescription.Server.Services;
+using MyPrescription.Server.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
 string connectionString = builder.Configuration.GetConnectionString("MySQL")!;
 string jwtToken = builder.Configuration.GetSection("AppSettings:Token").Value!;
+var notificationSettings = Configure<NotificationSettings>("NotificationSettings");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -78,7 +81,17 @@ builder.Services.AddSingleton(_ => new AuthRepository(connectionString));
 builder.Services.AddSingleton(_ => new PatientRepository(connectionString));
 builder.Services.AddSingleton(_ => new DoctorRepository(connectionString));
 builder.Services.AddSingleton(_ => new PrescriptionRepository(connectionString));
+builder.Services.AddSingleton(_ => new NotificationRepository(connectionString));
+builder.Services.AddScoped<NotificationService>();
 
+T? Configure<T>(string sectionName) where T : class
+{
+    var section = builder.Configuration.GetSection(sectionName);
+    var settings = section.Get<T>();
+    builder.Services.Configure<T>(section);
+
+    return settings;
+}
 
 var app = builder.Build();
 

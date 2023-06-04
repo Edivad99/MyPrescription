@@ -5,6 +5,7 @@ using MyPrescription.Common.Extensions;
 using MyPrescription.Common.Models;
 using MyPrescription.Data.Entity;
 using MyPrescription.Data.Repository;
+using MyPrescription.Server.Services;
 
 namespace MyPrescription.Server.Controllers;
 
@@ -13,10 +14,12 @@ namespace MyPrescription.Server.Controllers;
 public class PrescriptionsController : ControllerBase
 {
     private readonly PrescriptionRepository repository;
+    private readonly NotificationService notification;
 
-    public PrescriptionsController(PrescriptionRepository repository)
+    public PrescriptionsController(PrescriptionRepository repository, NotificationService notification)
     {
         this.repository = repository;
+        this.notification = notification;
     }
 
     [HttpPost]
@@ -36,6 +39,7 @@ public class PrescriptionsController : ControllerBase
         };
 
         await repository.AddNewPrescriptionAsync(prescriptionDB);
+        await notification.NotificationNewPrescription(prescription.PatientId);
         return StatusCode(StatusCodes.Status201Created);
     }
 
@@ -92,6 +96,7 @@ public class PrescriptionsController : ControllerBase
         };
 
         await repository.AddNewPrescriptionAsync(newPrescription);
+        await notification.NotificationNewPrescription(prescription.IdUser);
         return StatusCode(StatusCodes.Status201Created);
     }
 
@@ -133,6 +138,7 @@ public class PrescriptionsController : ControllerBase
             return StatusCode(StatusCodes.Status403Forbidden);
 
         var result = await repository.MarkPrescriptionAsDeliveredsync(prescription.Id.ToString(), User.GetId().ToString());
+        await notification.NotificationPrescriptionDelivered(prescription.IdUser);
         return StatusCode(result ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
     }
 

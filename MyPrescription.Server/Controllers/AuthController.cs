@@ -119,6 +119,3 @@ public class AuthController : ControllerBase
         return jwt;
     }
 }
-
-
-
