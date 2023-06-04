@@ -34,20 +34,6 @@ public class PatientRepository : Repository
         dynParam.Add("@ID", patientId, DbType.String, ParameterDirection.Input);
 
         await using var conn = GetDbConnection();
-        return await conn.QueryFirstOrDefaultAsync<User>(sql, dynParam);
-    }
-
-    public async Task<IEnumerable<User>> GetPatientPrescriptionsAsync(string patientId)
-    {
-        var sql = @"SELECT *
-                    FROM Prescriptions
-                    INNER JOIN Users ON Users.Id = Prescriptions.IdUser
-                    WHERE Role = 'patient' AND IdUser = @ID;";
-
-        var dynParam = new DynamicParameters();
-        dynParam.Add("@ID", patientId, DbType.String, ParameterDirection.Input);
-
-        await using var conn = GetDbConnection();
-        return await conn.QueryAsync<User>(sql);
+        return await conn.QuerySingleOrDefaultAsync<User>(sql, dynParam);
     }
 }

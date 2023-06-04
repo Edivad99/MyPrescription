@@ -49,5 +49,11 @@ public class AuthenticationService : IAuthenticationService
 
         httpClient.DefaultRequestHeaders.Authorization = null;
     }
+
+    public async Task<bool> IsAccessTokenStillValid()
+    {
+        var accessToken = await localStorage.GetItemAsync<string>("authToken");
+        return JwtParser.IsValid(accessToken);
+    }
 }
 

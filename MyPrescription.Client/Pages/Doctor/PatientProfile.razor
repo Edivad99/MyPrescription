@@ -1,6 +1,5 @@
 ﻿@page "/patientprofile/{id}"
 @inject MyPrescriptionClient client
-@inject NavigationManager NavManager
 @attribute [Authorize(Roles = "doctor")]
 
 <p hidden="!@HideWarning"><em>Loading...</em></p>
@@ -29,7 +28,7 @@ else
                 <thead>
                     <tr>
                         <th>Drug name</th>
-                        <th>Creation Date</th>
+                        <th>Creation date</th>
                         <th>Is free?</th>
                         <th>Pharmacist name</th>
                         <th>Actions</th>

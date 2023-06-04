@@ -4,6 +4,7 @@
 @inject NavigationManager NavManager
 @inject AuthenticationStateProvider authStateProvider
 
+<PageTitle>Log In</PageTitle>
 <h3>Log In</h3>
 
 @if (showAuthenticationError)
@@ -47,23 +48,27 @@
         {
             await AuthService.LoginAsync(model);
             var state = await authStateProvider.GetAuthenticationStateAsync();
-
-            if (state.User.IsInRole("doctor"))
-            {
-                NavManager.NavigateTo("/mypatients");
-            }
-            else if (state.User.IsInRole("patient"))
-            {
-                NavManager.NavigateTo($"/myprescriptions");
-            }
-            else if (state.User.IsInRole("pharmacist"))
-            {
-
-            }
+            RoleBaseNavigateTo(state);
         }
         catch (HttpRequestException)
         {
             showAuthenticationError = true;
+        }
+    }
+
+    private void RoleBaseNavigateTo(AuthenticationState state)
+    {
+        if (state.User.IsInRole("doctor"))
+        {
+            NavManager.NavigateTo("/mypatients");
+        }
+        else if (state.User.IsInRole("patient"))
+        {
+            NavManager.NavigateTo("/myprescriptions");
+        }
+        else if (state.User.IsInRole("pharmacist"))
+        {
+            NavManager.NavigateTo($"/findprescription");
         }
     }
 }

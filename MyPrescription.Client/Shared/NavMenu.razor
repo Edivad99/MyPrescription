@@ -28,6 +28,13 @@
                 </NavLink>
             </div>
         </AuthorizeView>
+        <AuthorizeView Roles="pharmacist">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/findprescription" Match="NavLinkMatch.All">
+                    <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Find Prescription
+                </NavLink>
+            </div>
+        </AuthorizeView>
     </nav>
 </div>
 
@@ -36,9 +43,5 @@
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : "";
 
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
+    private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
 }
-

@@ -1,0 +1,72 @@
+﻿@page "/druginformation/{singleUseCode}"
+@inject MyPrescriptionClient client
+@inject NavigationManager NavManager
+@attribute [Authorize(Roles = "pharmacist")]
+
+<div class="alert alert-danger" role="alert" hidden="@HideWarning">
+    @WarningMessage
+</div>
+
+<PageTitle>Drug Information</PageTitle>
+
+<h3>Drug Information</h3>
+
+@if (prescription is not null)
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Drug name</th>
+                    <th>Creation date</th>
+                    <th>Is free?</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                <tr>
+                    <td>@prescription.DrugName</td>
+                    <td>@prescription.CreationDate.ToString()</td>
+                    <td>@(prescription.IsFree ? "Yes" : "No")</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <button type="button" class="btn btn-primary" @onclick="ConfirmDelivery">Confirm Delivery</button>
+}
+
+
+@code {
+    [Parameter]
+    public string? SingleUseCode { get; set; }
+
+    private PrescriptionDTO? prescription;
+    private bool HideWarning = true;
+    private string? WarningMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(SingleUseCode))
+            return;
+        var response = await client.GetPrescriptionBySingleUseCodeAsync(SingleUseCode);
+        if (!response.IsSuccessStatusCode)
+        {
+            HideWarning = false;
+            WarningMessage = "Prescription not found!";
+            return;
+        }
+        prescription = await response.Content.ReadFromJsonAsync<PrescriptionDTO>();
+    }
+
+    private async Task ConfirmDelivery()
+    {
+        HideWarning = true;
+        var response = await client.DrugDeliveryAsync(prescription!.SingleUseCode);
+        if (!response.IsSuccessStatusCode)
+        {
+            HideWarning = false;
+            WarningMessage = "Delivery failed!";
+            return;
+        }
+        NavManager.NavigateTo($"/findprescription");
+    }
+}

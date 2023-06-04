@@ -20,7 +20,7 @@ CREATE TABLE `Prescriptions` (
   `IdDoctor` varchar(40) NOT NULL,
   `IdUser` varchar(40) NOT NULL,
   `IdPharmacist` varchar(40),
-  `SingleUseCode` varchar(44) NOT NULL,
+  `SingleUseCode` varchar(40) NOT NULL,
   `CreationDate` datetime NOT NULL,
   `IsFree` tinyint(1) NOT NULL,
   `DrugName` varchar(12) NOT NULL,
@@ -43,13 +43,15 @@ VALUES
   ('247e049a-0203-48fe-adfd-4110c21444ab','Paziente','Test','matteo.tossuto@gmail.com','$2a$11$4HODAPakSYyzIxKel71E4eFDtJ6byukWmcr3HJTkXdXV8hOk3Rwoe','Male','1800-01-01','sr2/X3KD/Cg=','patient'),
   ('3b7cd8a8-0dec-4974-8da2-9463848279d2','Davide','Albiero','davide@albiero.it','$2a$11$SiPGbD9E8O8nNiRAidiCouJogRP9zz3gsewIwAJAgZZeFxNQsi3q2','Male','1999-10-29','8qs4MpaRjeI=','doctor'),
   ('c110fcf5-3394-450e-9eb2-df101d0cfd44','Matteo','Tossuto','matteotossuto@gmail.com','$2a$11$vxslnl7.uDK.2Qlm.0d8De0R3YoYNodkaIIuSj/IbWevtaCuVkIc2','Other','1900-01-01','s7Hyto5f9EQ=','doctor'),
-  ('d3d5dbf4-210d-41c8-a0f3-def05b498fd4','Tina','Anselmi','tina.anselmi@gmail.com','$2a$11$Ia/sf/yRlLVJa777afkrS.guKgjEwII9fb468MyxqKLW73qSEo97q','Female','1927-03-25','8L1MCdeuHC4=','patient');
+  ('d3d5dbf4-210d-41c8-a0f3-def05b498fd4','Tina','Anselmi','tina.anselmi@gmail.com','$2a$11$Ia/sf/yRlLVJa777afkrS.guKgjEwII9fb468MyxqKLW73qSEo97q','Female','1927-03-25','8L1MCdeuHC4=','patient'),
+  ('816cb763-8484-4d68-a1a5-0e061d73e56f','Dottor','House','house@gmail.com','$2a$11$Kr6v4.LKLCyRaOiGFILJ2u9q2GlidXakXSjgnluXj2KJPpV31Y8Z.','Male','1500-01-01','Ss8PqYwNcvo=','pharmacist'),
+  ('c2743318-563b-44d3-9410-e903e7afdbb0','Mario','Rossi','mario.rossi@gmail.com','$2a$11$KnnNoR7yy4GBzWB.nmUcxeOavdI0BWts.7mpVF4gqo5AyfIu2pkxy','Male','1980-04-20','RiWnWaLx2KU=','pharmacist');
 
 INSERT INTO `Prescriptions` (`Id`, `IdDoctor`, `IdUser`, `IdPharmacist`, `SingleUseCode`, `CreationDate`, `IsFree`, `DrugName`)
 VALUES
-  ('41cf1a89-b9d7-4dcb-afcd-a810885bcf2e','3b7cd8a8-0dec-4974-8da2-9463848279d2','d3d5dbf4-210d-41c8-a0f3-def05b498fd4',NULL,'L7jEalJu5rXo6RV6nW38Ab03Koj9ZnG0zXubpB04qgE=','2023-05-17 16:50:37',0,'Paracetamol'),
-  ('423afe04-7957-41df-888c-b349e4e29444','3b7cd8a8-0dec-4974-8da2-9463848279d2','d3d5dbf4-210d-41c8-a0f3-def05b498fd4',NULL,'9nOfi9UQDtzP3gm09HDLYsksqs1VgVaE+skCXlruSCs=','2023-05-20 12:55:06',0,'Ibuprofen'),
-  ('937c05cf-f9a7-4c22-9296-092d0058337f','c110fcf5-3394-450e-9eb2-df101d0cfd44','d3d5dbf4-210d-41c8-a0f3-def05b498fd4',NULL,'8r+ZaZyk5bD9h0rgQ7TDEyEa0zlxsHsB2ypuuBrNU1k=','2023-05-22 18:13:30',1,'Test');
+  ('41cf1a89-b9d7-4dcb-afcd-a810885bcf2e','3b7cd8a8-0dec-4974-8da2-9463848279d2','d3d5dbf4-210d-41c8-a0f3-def05b498fd4',NULL,'4a439d9f-43b8-49c3-bcf5-253d84c905a1','2023-05-17 16:50:37',0,'Paracetamol'),
+  ('423afe04-7957-41df-888c-b349e4e29444','3b7cd8a8-0dec-4974-8da2-9463848279d2','d3d5dbf4-210d-41c8-a0f3-def05b498fd4',NULL,'df2002b8-1bf8-45f5-89b6-f87d0f2639aa','2023-05-20 12:55:06',0,'Ibuprofen'),
+  ('937c05cf-f9a7-4c22-9296-092d0058337f','c110fcf5-3394-450e-9eb2-df101d0cfd44','d3d5dbf4-210d-41c8-a0f3-def05b498fd4',NULL,'4e0094c9-7362-465d-980f-d1d4765a65c9','2023-05-22 18:13:30',1,'Test');
 
 INSERT INTO `DoctorUser` (`IdDoctor`, `IdUser`)
 VALUES

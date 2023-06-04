@@ -37,7 +37,8 @@ public class PrescriptionRepository : Repository
                     INNER JOIN Users AS patient ON patient.Id = Prescriptions.IdUser
                     INNER JOIN Users AS doctor ON doctor.Id = Prescriptions.IdDoctor
                     LEFT JOIN Users AS pharmacist ON pharmacist.Id = Prescriptions.IdPharmacist
-                    WHERE IdUser = @ID AND patient.Role = 'patient';";
+                    WHERE IdUser = @ID AND patient.Role = 'patient'
+                    ORDER BY CreationDate DESC;";
 
         var dynParam = new DynamicParameters();
         dynParam.Add("@ID", patientId, DbType.String, ParameterDirection.Input);
@@ -56,7 +57,20 @@ public class PrescriptionRepository : Repository
         dynParam.Add("@ID", prescriptionId, DbType.String, ParameterDirection.Input);
 
         await using var conn = GetDbConnection();
-        return await conn.QueryFirstOrDefaultAsync<Prescription>(sql, dynParam);
+        return await conn.QuerySingleOrDefaultAsync<Prescription>(sql, dynParam);
+    }
+
+    public async Task<Prescription> GetPrescriptionByCode(string code)
+    {
+        var sql = @"SELECT *
+                    FROM Prescriptions
+                    WHERE SingleUseCode = @CODE;";
+
+        var dynParam = new DynamicParameters();
+        dynParam.Add("@CODE", code, DbType.String, ParameterDirection.Input);
+
+        await using var conn = GetDbConnection();
+        return await conn.QuerySingleOrDefaultAsync<Prescription>(sql, dynParam);
     }
 
     public async Task<bool> DeletePrescriptionByIdAsync(string prescriptionId)
