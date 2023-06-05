@@ -71,7 +71,7 @@ public class PrescriptionsController : ControllerBase
         return StatusCode(result ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
     }
 
-    [HttpPut("renew/{prescriptionId}")]
+    [HttpPost("renew/{prescriptionId}")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -124,14 +124,14 @@ public class PrescriptionsController : ControllerBase
         return StatusCode(StatusCodes.Status200OK, MapTo(prescription));
     }
 
-    [HttpPut("deliver/{prescriptionCode}")]
+    [HttpPatch("deliver/{prescriptionCode}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "pharmacist")]
     public async Task<IActionResult> DeliverPrescriptionByIdAsync(string prescriptionCode)
     {
-        var prescription = await repository.GetPrescriptionByCode(prescriptionCode);
+        var prescription = await repository.GetPrescriptionByCodeAsync(prescriptionCode);
         if (prescription is null)
             return StatusCode(StatusCodes.Status404NotFound);
         if (prescription.IdPharmacist is not null)
@@ -147,12 +147,40 @@ public class PrescriptionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "pharmacist")]
-    public async Task<IActionResult> GetPrescriptionsByCode(string code)
+    public async Task<IActionResult> GetPrescriptionsByCodeAsync(string code)
     {
-        var prescription = await repository.GetPrescriptionByCode(code);
+        var prescription = await repository.GetPrescriptionByCodeAsync(code);
         if (prescription is null)
             return StatusCode(StatusCodes.Status404NotFound);
         return StatusCode(StatusCodes.Status200OK, MapTo(prescription));
+    }
+
+    [HttpPatch("singleusecode/{prescriptionId}/renew")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "patient")]
+    public async Task<IActionResult> GenerateNewCodeAsync(string prescriptionId)
+    {
+        var prescription = await repository.GetPrescriptionByIdAsync(prescriptionId);
+        if (prescription is null)
+            return StatusCode(StatusCodes.Status404NotFound);
+        if (prescription.IdPharmacist is not null)
+            return StatusCode(StatusCodes.Status403Forbidden);
+
+        var newPrescription = new Prescription
+        {
+            Id = prescription.Id,
+            DrugName = prescription.DrugName,
+            CreationDate = prescription.CreationDate,
+            IdUser = prescription.IdUser,
+            IsFree = prescription.IsFree,
+            IdDoctor = prescription.IdDoctor,
+            SingleUseCode = Guid.NewGuid().ToString()
+        };
+        await repository.UpdatePrescriptionSingleUseCodeAsync(newPrescription.Id, newPrescription.SingleUseCode);
+
+        return StatusCode(StatusCodes.Status200OK, MapTo(newPrescription));
     }
 
     private static PrescriptionDTO MapTo(Prescription prescription) => new()
