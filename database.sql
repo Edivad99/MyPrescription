@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS `Prescriptions`;
 DROP TABLE IF EXISTS `DoctorUser`;
+DROP TABLE IF EXISTS `Notifications`;
 DROP TABLE IF EXISTS `Users`;
 
 CREATE TABLE `Users` (
@@ -36,6 +37,15 @@ CREATE TABLE `DoctorUser` (
   PRIMARY KEY(`IdDoctor`, `IdUser`),
   FOREIGN KEY (`IdDoctor`) REFERENCES `Users` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (`IdUser`) REFERENCES `Users` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `Notifications` (
+  `IDUser` varchar(40) NOT NULL,
+  `Url` varchar(500) NOT NULL,
+  `P256dh` varchar(255) NOT NULL,
+  `Auth` varchar(255) NOT NULL,
+  PRIMARY KEY(`IDUser`, `Url`),
+  FOREIGN KEY (`IDUser`) REFERENCES `Users` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `Users` (`Id`, `FirstName`, `LastName`, `Email`, `Password`, `Gender`, `Birthdate`, `Key2FA`, `Role`)

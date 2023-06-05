@@ -3,6 +3,8 @@
 @inject IAuthenticationService AuthService
 @inject NavigationManager NavManager
 @inject AuthenticationStateProvider authStateProvider
+@inject IJSRuntime JSRuntime
+@inject MyPrescriptionClient client
 
 <PageTitle>Log In</PageTitle>
 <h3>Log In</h3>
@@ -39,6 +41,12 @@
 @code {
     private AuthenticationUser model = new();
     private bool showAuthenticationError = false;
+    private Dictionary<string, string> routes = new()
+{
+        { "doctor", "/mypatients" },
+        { "patient", "/myprescriptions" },
+        { "pharmacist", "/findprescription" },
+    };
 
     private async Task ExecuteLogin()
     {
@@ -48,7 +56,7 @@
         {
             await AuthService.LoginAsync(model);
             var state = await authStateProvider.GetAuthenticationStateAsync();
-            RoleBaseNavigateTo(state);
+            await RoleBaseNavigateTo(state);
         }
         catch (HttpRequestException)
         {
@@ -56,19 +64,46 @@
         }
     }
 
-    private void RoleBaseNavigateTo(AuthenticationState state)
+    private async Task RoleBaseNavigateTo(AuthenticationState state)
     {
-        if (state.User.IsInRole("doctor"))
+        var role = state.User.GetRoles().FirstOrDefault();
+        if (string.IsNullOrEmpty(role))
+            return;
+        if (!routes.ContainsKey(role))
+            return;
+
+        if (role == "patient")
         {
-            NavManager.NavigateTo("/mypatients");
+            await RequestSubscription();
         }
-        else if (state.User.IsInRole("patient"))
+        NavManager.NavigateTo(routes[role]);
+    }
+
+    private async Task RequestSubscription()
+    {
+        try
         {
-            NavManager.NavigateTo("/myprescriptions");
+            var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription", client.GetNotificationPublicKeyUrl());
+            if (subscription != null)
+            {
+                try
+                {
+                    var response = await client.NotificationSubscribe(subscription);
+                    response.EnsureSuccessStatusCode();
+                }
+                catch (AccessTokenNotAvailableException ex)
+                {
+                    ex.Redirect();
+                }
+            }
         }
-        else if (state.User.IsInRole("pharmacist"))
+        catch (Exception e)
         {
-            NavManager.NavigateTo($"/findprescription");
+            Console.WriteLine("Error registering subscription for notifications");
+            Console.WriteLine("If you are in incognito mode, notifications are not supported");
+            Console.WriteLine("If you view this page in Safari, notifications may not be supported");
+            Console.WriteLine($"Error message: {e.Message}");
+            Console.WriteLine($"Error stack trace: {e.StackTrace}");
         }
     }
 }

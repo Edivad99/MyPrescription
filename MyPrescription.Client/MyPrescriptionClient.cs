@@ -17,6 +17,8 @@ public class MyPrescriptionClient
         this.authService = authService;
     }
 
+    public string GetNotificationPublicKeyUrl() => httpClient.BaseAddress!.AbsoluteUri + "Notification/publickey";
+
     private async Task<HttpResponseMessage> ManageUnauthorizedResponseAsync(Func<Task<HttpResponseMessage>> func)
     {
         var responseMessage = await func.Invoke();
@@ -65,7 +67,7 @@ public class MyPrescriptionClient
 
     public Task<HttpResponseMessage> RenewPrescriptionAsync(Guid prescriptionId)
     {
-        return ManageUnauthorizedResponseAsync(() => httpClient.PutAsync($"Prescriptions/renew/{prescriptionId}", null));
+        return ManageUnauthorizedResponseAsync(() => httpClient.PostAsync($"Prescriptions/renew/{prescriptionId}", null));
     }
 
     public Task<HttpResponseMessage> GetPrescriptionAsync(Guid prescriptionId)
@@ -80,7 +82,16 @@ public class MyPrescriptionClient
 
     public Task<HttpResponseMessage> DrugDeliveryAsync(string code)
     {
-        return ManageUnauthorizedResponseAsync(() => httpClient.PutAsync($"Prescriptions/deliver/{code}", null));
+        return ManageUnauthorizedResponseAsync(() => httpClient.PatchAsync($"Prescriptions/deliver/{code}", null));
+    }
+
+    public Task<HttpResponseMessage> NotificationSubscribe(NotificationSubscription subscription)
+    {
+        return ManageUnauthorizedResponseAsync(() => httpClient.PostAsJsonAsync($"Notification/subscribe", subscription));
+    }
+
+    public Task<HttpResponseMessage> GenerateNewCodeAsync(Guid prescriptionId)
+    {
+        return ManageUnauthorizedResponseAsync(() => httpClient.PatchAsync($"Prescriptions/singleusecode/{prescriptionId}/renew", null));
     }
 }
-

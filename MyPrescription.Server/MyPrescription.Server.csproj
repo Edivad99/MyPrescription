@@ -13,6 +13,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.5" />
 		<PackageReference Include="GoogleAuthenticator" Version="3.1.0" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.1" />
+		<PackageReference Include="WebPush" Version="1.0.12" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\MyPrescription.Common\MyPrescription.Common.csproj">
@@ -23,5 +24,13 @@
 			<GlobalPropertiesToRemove>
 			</GlobalPropertiesToRemove>
 		</ProjectReference>
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="Settings\" />
+	  <None Remove="Services\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Settings\" />
+	  <Folder Include="Services\" />
 	</ItemGroup>
 </Project>

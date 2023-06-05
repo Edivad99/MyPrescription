@@ -60,7 +60,7 @@ public class PrescriptionRepository : Repository
         return await conn.QuerySingleOrDefaultAsync<Prescription>(sql, dynParam);
     }
 
-    public async Task<Prescription> GetPrescriptionByCode(string code)
+    public async Task<Prescription> GetPrescriptionByCodeAsync(string code)
     {
         var sql = @"SELECT *
                     FROM Prescriptions
@@ -93,6 +93,20 @@ public class PrescriptionRepository : Repository
         var dynParam = new DynamicParameters();
         dynParam.Add("@ID", prescriptionId, DbType.String, ParameterDirection.Input);
         dynParam.Add("@IDPHARMACIST", pharmacistId, DbType.String, ParameterDirection.Input);
+
+        await using var conn = GetDbConnection();
+        return await conn.ExecuteAsync(sql, dynParam) == 1;
+    }
+
+    public async Task<bool> UpdatePrescriptionSingleUseCodeAsync(string prescriptionId, string singleUseCode)
+    {
+        var sql = @"UPDATE Prescriptions
+                    SET SingleUseCode = @SINGLEUSECODE
+                    WHERE Id = @ID;";
+
+        var dynParam = new DynamicParameters();
+        dynParam.Add("@ID", prescriptionId, DbType.String, ParameterDirection.Input);
+        dynParam.Add("@SINGLEUSECODE", singleUseCode, DbType.String, ParameterDirection.Input);
 
         await using var conn = GetDbConnection();
         return await conn.ExecuteAsync(sql, dynParam) == 1;
