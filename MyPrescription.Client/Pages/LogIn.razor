@@ -3,8 +3,6 @@
 @inject IAuthenticationService AuthService
 @inject NavigationManager NavManager
 @inject AuthenticationStateProvider authStateProvider
-@inject IJSRuntime JSRuntime
-@inject MyPrescriptionClient client
 
 <PageTitle>Log In</PageTitle>
 <h3>Log In</h3>
@@ -56,7 +54,7 @@
         {
             await AuthService.LoginAsync(model);
             var state = await authStateProvider.GetAuthenticationStateAsync();
-            await RoleBaseNavigateTo(state);
+            RoleBaseNavigateTo(state);
         }
         catch (HttpRequestException)
         {
@@ -64,7 +62,7 @@
         }
     }
 
-    private async Task RoleBaseNavigateTo(AuthenticationState state)
+    private void RoleBaseNavigateTo(AuthenticationState state)
     {
         var role = state.User.GetRoles().FirstOrDefault();
         if (string.IsNullOrEmpty(role))
@@ -72,39 +70,7 @@
         if (!routes.ContainsKey(role))
             return;
 
-        if (role == "patient")
-        {
-            await RequestSubscription();
-        }
         NavManager.NavigateTo(routes[role]);
-    }
-
-    private async Task RequestSubscription()
-    {
-        try
-        {
-            var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription", client.GetNotificationPublicKeyUrl());
-            if (subscription != null)
-            {
-                try
-                {
-                    var response = await client.NotificationSubscribe(subscription);
-                    response.EnsureSuccessStatusCode();
-                }
-                catch (AccessTokenNotAvailableException ex)
-                {
-                    ex.Redirect();
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("Error registering subscription for notifications");
-            Console.WriteLine("If you are in incognito mode, notifications are not supported");
-            Console.WriteLine("If you view this page in Safari, notifications may not be supported");
-            Console.WriteLine($"Error message: {e.Message}");
-            Console.WriteLine($"Error stack trace: {e.StackTrace}");
-        }
     }
 }
 

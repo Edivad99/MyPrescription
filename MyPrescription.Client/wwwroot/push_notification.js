@@ -13,6 +13,12 @@
                     };
                 }
             }
+        },
+        checkNotificationPermission: async () => {
+            return Notification.permission === "granted";
+        },
+        askNotificationPermission: async () => {
+            Notification.requestPermission().then(res => { });
         }
     };
 
