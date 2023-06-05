@@ -68,13 +68,12 @@ public class NotificationService
         }
         catch (WebPushException e)
         {
-            if (e.Message == "Subscription no longer valid" || e.HttpResponseMessage.StatusCode == HttpStatusCode.Unauthorized)
+            var statusCode = e.StatusCode;
+            if (statusCode == HttpStatusCode.NotFound || statusCode == HttpStatusCode.Gone)
             {
+                // Subscription no longer valid
                 await repository.RemoveNotificationSubscriptionByUrlAsync(e.PushSubscription.Endpoint);
             }
-        }
-        catch (Exception)
-        {
         }
     }
 }
