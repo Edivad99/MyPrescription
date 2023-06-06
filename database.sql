@@ -24,7 +24,7 @@ CREATE TABLE `Prescriptions` (
   `SingleUseCode` varchar(40) NOT NULL,
   `CreationDate` datetime NOT NULL,
   `IsFree` tinyint(1) NOT NULL,
-  `DrugName` varchar(12) NOT NULL,
+  `DrugName` varchar(100) NOT NULL,
   PRIMARY KEY(`Id`),
   FOREIGN KEY (`IdDoctor`) REFERENCES `Users` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (`IdUser`) REFERENCES `Users` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -44,6 +44,7 @@ CREATE TABLE `Notifications` (
   `Url` varchar(500) NOT NULL,
   `P256dh` varchar(255) NOT NULL,
   `Auth` varchar(255) NOT NULL,
+  `CreationDate` datetime NOT NULL,
   PRIMARY KEY(`IDUser`, `Url`),
   FOREIGN KEY (`IDUser`) REFERENCES `Users` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

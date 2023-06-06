@@ -6,4 +6,5 @@ public class Notification
     public string Url { get; set; } = string.Empty;
     public string P256dh { get; set; } = string.Empty;
     public string Auth { get; set; } = string.Empty;
+    public DateTime CreationDate { get; set; }
 }

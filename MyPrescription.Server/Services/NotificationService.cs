@@ -29,7 +29,8 @@ public class NotificationService
             IDUser = patientId.ToString(),
             Auth = notification.Auth,
             P256dh = notification.P256dh,
-            Url = notification.Url
+            Url = notification.Url,
+            CreationDate = DateTime.Now
         };
         await repository.AddNotificationSubscriptionAsync(notificationDb);
     }

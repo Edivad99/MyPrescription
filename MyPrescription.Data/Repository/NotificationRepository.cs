@@ -12,14 +12,15 @@ public class NotificationRepository : Repository
 
     public async Task AddNotificationSubscriptionAsync(Notification notification)
     {
-        var sql = @"INSERT INTO `Notifications` (`IDUser`, `Url`, `P256dh`, `Auth`) VALUES
-                  (@IDUSER, @URL, @P256DH, @AUTH);";
+        var sql = @"INSERT INTO `Notifications` (`IDUser`, `Url`, `P256dh`, `Auth`, `CreationDate`) VALUES
+                  (@IDUSER, @URL, @P256DH, @AUTH, @CREATIONDATE);";
 
         var dynParam = new DynamicParameters();
         dynParam.Add("@IDUSER", notification.IDUser, DbType.String, ParameterDirection.Input);
         dynParam.Add("@URL", notification.Url, DbType.String, ParameterDirection.Input);
         dynParam.Add("@P256DH", notification.P256dh, DbType.String, ParameterDirection.Input);
         dynParam.Add("@AUTH", notification.Auth, DbType.String, ParameterDirection.Input);
+        dynParam.Add("@CREATIONDATE", notification.CreationDate, DbType.DateTime, ParameterDirection.Input);
 
         await using var conn = GetDbConnection();
         await conn.ExecuteAsync(sql, dynParam);

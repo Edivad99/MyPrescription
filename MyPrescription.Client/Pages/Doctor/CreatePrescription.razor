@@ -18,7 +18,7 @@
 }
 else
 {
-    <EditForm Model="model" OnValidSubmit="ExecuteRegistration" class="card card-body bg-light mt-5" autocomplete="off">
+    <EditForm Model="model" OnValidSubmit="AddPrescription" class="card card-body bg-light mt-5" autocomplete="off">
         <DataAnnotationsValidator />
 
         <div class="row">
@@ -84,7 +84,7 @@ else
         patients = await client.GetPatientsAsync();
     }
 
-    private async Task ExecuteRegistration()
+    private async Task AddPrescription()
     {
         HideWarning = true;
 
