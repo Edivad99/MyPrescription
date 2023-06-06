@@ -36,6 +36,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine("MainLayout OnInitializedAsync");
         var state = await authStateProvider.GetAuthenticationStateAsync();
         var identity = state.User.Identity;
 
