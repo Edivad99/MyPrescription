@@ -71,6 +71,7 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     [HttpPost("login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> LogInAsync([FromForm(Name = "username"), Required] string username,
                                                 [FromForm(Name = "password"), Required] string password,
