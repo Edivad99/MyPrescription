@@ -81,7 +81,7 @@ public class PrescriptionsController : ControllerBase
         var prescription = await repository.GetPrescriptionByIdAsync(prescriptionId.ToString());
         if (prescription is null)
             return StatusCode(StatusCodes.Status404NotFound);
-        if (prescription.IdPharmacist is not null)
+        if (prescription.IdPharmacist is null)
             return StatusCode(StatusCodes.Status403Forbidden);
 
         var newPrescription = new Prescription()
