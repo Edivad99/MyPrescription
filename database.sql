@@ -61,8 +61,7 @@ VALUES
 INSERT INTO `Prescriptions` (`Id`, `IdDoctor`, `IdUser`, `IdPharmacist`, `SingleUseCode`, `CreationDate`, `IsFree`, `DrugName`)
 VALUES
   ('41cf1a89-b9d7-4dcb-afcd-a810885bcf2e','3b7cd8a8-0dec-4974-8da2-9463848279d2','d3d5dbf4-210d-41c8-a0f3-def05b498fd4',NULL,'4a439d9f-43b8-49c3-bcf5-253d84c905a1','2023-05-17 16:50:37',0,'Paracetamol'),
-  ('423afe04-7957-41df-888c-b349e4e29444','3b7cd8a8-0dec-4974-8da2-9463848279d2','d3d5dbf4-210d-41c8-a0f3-def05b498fd4',NULL,'df2002b8-1bf8-45f5-89b6-f87d0f2639aa','2023-05-20 12:55:06',0,'Ibuprofen'),
-  ('937c05cf-f9a7-4c22-9296-092d0058337f','c110fcf5-3394-450e-9eb2-df101d0cfd44','d3d5dbf4-210d-41c8-a0f3-def05b498fd4',NULL,'4e0094c9-7362-465d-980f-d1d4765a65c9','2023-05-22 18:13:30',1,'Test');
+  ('423afe04-7957-41df-888c-b349e4e29444','3b7cd8a8-0dec-4974-8da2-9463848279d2','d3d5dbf4-210d-41c8-a0f3-def05b498fd4',NULL,'df2002b8-1bf8-45f5-89b6-f87d0f2639aa','2023-05-20 12:55:06',0,'Ibuprofen');
 
 INSERT INTO `DoctorUser` (`IdDoctor`, `IdUser`)
 VALUES
